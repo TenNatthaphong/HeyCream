@@ -15,9 +15,14 @@ public class Sauce {
     private String color;
     
     //constructor
-    public Sauce(){}
+    public Sauce(String name, String color)
+    {
+        this.name = name;
+        this.color = color;
+    }
     
     //method
-    public void getName(){}
+    public String getName(){ return name; }
+    public String getColor(){ return color; }
     
 }

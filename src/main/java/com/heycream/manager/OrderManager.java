@@ -7,6 +7,7 @@ package com.heycream.manager;
 import com.heycream.model.Order;
 import com.heycream.model.Cup;
 import com.heycream.actor.Customer;
+import com.heycream.utils.Randomizer;
 import java.util.*;
 /**
  *
@@ -14,13 +15,22 @@ import java.util.*;
  */
 public class OrderManager {
     
-    //attribure
-    private List<Order> orders;
-    
-    //constructor
-    public OrderManager(){}
-    
+    //attribute
+    private Random random = new Random();
+
     //method
-    public void generateOrder(Customer customer){}
-    public void checkOrder(Cup cup,Customer customer){}
+    public Customer generateOrder() {
+        Cup cup = Randomizer.randomCup();
+        Order order = new Order(cup); 
+        Customer customer = new Customer(order); 
+
+        System.out.println("Customer order generated:");
+        System.out.println(order.describe());
+        return customer;
+    }
+
+    public boolean checkOrder(Cup playerCup, Customer customer) {
+        Order target = customer.getOrder();
+        return target.checkMatch(playerCup);
+    }
 }

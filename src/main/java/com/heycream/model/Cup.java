@@ -14,18 +14,33 @@ import java.util.*;
 public class Cup {
     
     //attribute
-    private String size;
-    private List<Scoop> scoops;
+    private CupSize size;
+    private List<IceCream> scoops;
     private List<Topping> toppings;
     private Sauce sauce;
     
     //constructor
-    public Cup(){}
+    public Cup(CupSize size)
+    {
+        this.size = size;
+        scoops = new ArrayList<>();
+        toppings = new ArrayList<>();
+    }
     
     //method
-    public void addScoop(Scoop scoop){}
-    public void addTopping(Topping topping){}
-    public void addSauce(Sauce sauce){}
-    public void getDescription(){}
+    public void addScoop(IceCream iceCream){ scoops.add(iceCream); }
+    public void addTopping(Topping topping){ toppings.add(topping); }
+    public void addSauce(Sauce sauce){ this.sauce = sauce; }
+    public String getDescription()
+    {
+        return "Cup size: " + size + 
+                ", Scoop: " + scoops.size() + 
+                ", Toppings: " + toppings.size() + 
+                ", Sauce: " + (sauce != null ? sauce.getName() : "none"); 
+    }
+    public CupSize getSize() { return size; }
+    public List<IceCream> getScoops() { return scoops; }
+    public List<Topping> getToppings() { return toppings; }
+    public Sauce getSauce() { return sauce; }
     
 }

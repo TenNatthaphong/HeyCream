@@ -21,13 +21,27 @@ public class Player {
     private int comboScore;
     
     //constructor
-    public Player(){}
+    public Player()
+    {
+        scoops = new ArrayList<>();
+        toppings = new ArrayList<>();
+        comboScore = 0;
+    }
     
     //method
-    public void pickCup(Cup cup){}
-    public void scoopIceCream(IceCream flavor){}
-    public void addTopping(Topping topping){}
-    public void pourSauce(Sauce sauce){}
-    public void serve(Customer customer){}
+    public Cup getCurrentCup(){ return currentCup; }
+    public void pickCup(Cup cup) { this.currentCup = cup; }
+    public void scoopIceCream(IceCream flavor) { scoops.add(flavor); }
+    public void addTopping(Topping topping) {toppings.add(topping); }
+    public void pourSauce(Sauce sauce) { this.currentSauce = sauce; }
+    public void serve(Customer customer)
+    {
+        Cup readyCup = new Cup(currentCup.getSize());
+        scoops.forEach(readyCup::addScoop);
+        toppings.forEach(readyCup::addTopping);
+        readyCup.addSauce(currentSauce);
+        boolean correct = customer.getOrder().checkMatch(readyCup);
+        customer.reactToOrder(correct);
+    }
     
 }

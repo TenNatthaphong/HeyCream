@@ -14,9 +14,12 @@ public class Topping {
     private String name;
     
     //constructor
-    public Topping(){}
+    public Topping(String name)
+    {
+        this.name = name;
+    }
     
     //method
-    public void getName(){}
+    public String getName(){ return name; }
     
 }

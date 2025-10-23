@@ -15,10 +15,25 @@ public class MoneyManager {
     private int stars;
     
     //constructor
-    public MoneyManager(){}
+    public MoneyManager()
+    {
+        total = 0;
+        stars = 0;
+    }
     
     //method
-    public void addMoney(int amount){};
-    public void deduct(int amount){};
-    private void calculateStars(){};
+    public void addMoney(int amount)
+    {
+        total += amount;
+    }
+    public void deduct(int amount)
+    {
+        if(total > 0) total -= amount;
+    }
+    public void calculateStars()
+    {
+        stars = total / 500;
+    }
+    public int getTotal() { return total; }
+    public int getStars() { return stars; }
 }

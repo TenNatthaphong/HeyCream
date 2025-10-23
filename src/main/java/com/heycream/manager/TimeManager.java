@@ -16,10 +16,35 @@ public class TimeManager {
     private boolean isOpen;
     
     //constructor
-    public TimeManager(){}
+    public TimeManager()
+    {
+        currentHour = 12;
+        currentMinute = 0;
+        isOpen = true;
+    }
     
     //method
-    public void tick(){}
-    public void checkOpenClose(){}
+    public void tick()
+    {
+        currentMinute += 10;
+        if(currentMinute >= 60)
+        {
+            currentMinute = 0;
+            currentHour++;
+        }
+        setOpenClose();
+    }
+    public boolean isOpen() { return isOpen; }
+    private void setOpenClose()
+    {
+        if (currentHour >= 21)
+        {
+            isOpen = false;
+        }
+    }
+    
+    public String getTime() {
+        return String.format("%02d:%02d", currentHour, currentMinute);
+    }
     
 }

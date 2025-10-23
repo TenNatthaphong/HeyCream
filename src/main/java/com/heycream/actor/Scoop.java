@@ -15,13 +15,21 @@ public class Scoop {
     //attribute
     private IceCream flavor;
     private Cup cup;
-    private boolean isPlace;
+    private boolean isPlaced;
     
     //constructor
     public Scoop(){}
     
     //method
-    public void take(IceCream flavor){}
-    public void dropInto(Order order){} 
+    public void take(IceCream flavor)
+    {
+        this.flavor = flavor;
+        this.isPlaced = false;
+    }
+    public void dropInto(Order order)
+    {
+        cup = order.getRequestedCup();
+        isPlaced = true;
+    } 
     
 }

@@ -15,9 +15,13 @@ public class IceCream {
     private String color;
     
     //constructor
-    public IceCream(){}
+    public IceCream(String flavor, String color)
+    {
+        this.flavor = flavor;
+        this.color = color;
+    }
     
     //method
-    public void getFlavor(){}
-    public void getColor(){}
+    public String getFlavor(){ return flavor; }
+    public String getColor(){ return color; }
 }

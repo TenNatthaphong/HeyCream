@@ -19,11 +19,31 @@ public class Customer {
     private boolean satisfied;
     
     //constructor
-    public Customer(){}
+    public Customer(Order order) 
+    {
+        this.order = order;
+        this.patience = 100;
+        this.satisfied = false;
+    }
     
     //method
-    public void generateOrder(){}
-    public void reactToOrder(){}
-    private void decreasePatience(){}
-    
+    public void generateOrder(Order newOrder)
+    {
+        this.order = newOrder;
+    }
+    public void reactToOrder(boolean isCorrect)
+    {
+        satisfied = isCorrect;
+        if(isCorrect) System.out.println(name + " is happy!");
+        else System.out.println(name + " is upset!");
+    }
+    private void decreasePatience()
+    {
+        patience -= 10;
+        if(patience < 0) patience = 0;
+    }   
+    public String getName(){ return name; }
+    public Order getOrder(){ return order; }
+    public int getPatience() { return patience; }
+    public boolean isSatisfied() { return satisfied; }
 }

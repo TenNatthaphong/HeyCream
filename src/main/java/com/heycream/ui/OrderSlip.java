@@ -12,13 +12,20 @@ import com.heycream.model.Order;
 public class OrderSlip {
     
     //attribute
-    private Order order;
-    private String textDisplay;
-    
+    private Order currentOrder;
+
     //constructor
-    public OrderSlip(){}
+    public OrderSlip(Order order) {
+        this.currentOrder = order;
+    }
     
     //method
-    private void render(){}
-    
+    public void displayOrder()
+    {
+        System.out.println("📋 ORDER SLIP:");
+        System.out.println(currentOrder.describe());
+        System.out.println("-------------------------");
+    }
+    public void setOrder(Order order) { this.currentOrder = order; }
+    public Order getOrder() { return currentOrder; }
 }
