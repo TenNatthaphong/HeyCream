@@ -24,4 +24,10 @@ public class IceCream {
     //method
     public String getFlavor(){ return flavor; }
     public String getColor(){ return color; }
+    @Override
+    public String toString() 
+    {
+        return flavor;
+    }
+
 }

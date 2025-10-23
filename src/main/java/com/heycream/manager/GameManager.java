@@ -38,42 +38,69 @@ public class GameManager {
     public void startGame()
     {
         System.out.println("HeyCream Game Starting...");
-        while(isRunning)
-        {
-            update();
-        }
+//        while(isRunning)
+//        {
+//            update();
+//        }
+//        endGame();
+        simulateDay();
         endGame();
     }
-    public void update()
-    {
-        timeManager.tick();
-        if(!timeManager.isOpen())
-        {
-            isRunning = false;
-            return;
-        }
-        Customer c= orderManager.generateOrder();
-        customers.add(c);
-        System.out.println(c.getName() + " wants : " + c.getOrder());
-        player.serve(c);
-        
-        boolean isCorrect = orderManager.checkOrder(player.getCurrentCup(),c);
-        if(isCorrect)
-        {
-            uiManager.showResult(true);
-            moneyManager.addMoney(100);
-        }
-        else
-        {
-            uiManager.showResult(false);
-            moneyManager.deduct(50);
+    private void simulateDay() {
+        for (int i = 1; i <= 3; i++) { 
+            System.out.println("Customer " + i + " enters...");
+            Customer c = orderManager.generateOrder(i);
+            customers.add(c);
+
+            uiManager.setOrder(c.getOrder());
+            uiManager.showOrder();
+
+            System.out.println("Player preparing order...");
+            player.prepareOrder(c.getOrder());
+            player.serve(c);
+
+            boolean correct = orderManager.checkOrder(player.getCurrentCup(), c);
+            if (correct) {
+                uiManager.showResult(true);
+                moneyManager.addMoney(100);
+            } else {
+                uiManager.showResult(false);
+                moneyManager.deduct(50);
+            }
+            System.out.println("Current total: " + moneyManager.getTotal() + "\n");
         }
     }
+
+//    public void update()
+//    {
+//        timeManager.tick();
+//        if(!timeManager.isOpen())
+//        {
+//            isRunning = false;
+//            return;
+//        }
+//        Customer c= orderManager.generateOrder();
+//        customers.add(c);
+//        System.out.println(c.getName() );
+//        player.serve(c);
+//        
+//        boolean isCorrect = orderManager.checkOrder(player.getCurrentCup(),c);
+//        if(isCorrect)
+//        {
+//            uiManager.showResult(true);
+//            moneyManager.addMoney(100);
+//        }
+//        else
+//        {
+//            uiManager.showResult(false);
+//            moneyManager.deduct(50);
+//        }
+//    }
     public void endGame()
     {
         moneyManager.calculateStars();
-        System.out.println("\n🏁 Shop closed!");
-        System.out.println("💰 Total money: " + moneyManager.getTotal());
-        System.out.println("⭐ Stars earned: " + moneyManager.getStars());
+        System.out.println("\nShop closed!");
+        System.out.println("Total money: " + moneyManager.getTotal());
+        System.out.println("Stars earned: " + moneyManager.getStars());
     }
 }

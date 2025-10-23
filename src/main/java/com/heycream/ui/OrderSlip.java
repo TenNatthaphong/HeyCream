@@ -22,7 +22,7 @@ public class OrderSlip {
     //method
     public void displayOrder()
     {
-        System.out.println("📋 ORDER SLIP:");
+        System.out.println("ORDER SLIP:");
         System.out.println(currentOrder.describe());
         System.out.println("-------------------------");
     }

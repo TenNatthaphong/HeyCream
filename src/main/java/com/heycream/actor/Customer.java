@@ -19,8 +19,9 @@ public class Customer {
     private boolean satisfied;
     
     //constructor
-    public Customer(Order order) 
+    public Customer(Order order,String name) 
     {
+        this.name = name;
         this.order = order;
         this.patience = 100;
         this.satisfied = false;

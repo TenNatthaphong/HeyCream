@@ -11,8 +11,7 @@ package com.heycream.model;
 public enum CupSize {
     Small("S"),
     Medium("M"),
-    Large("L"),
-    Cone("C");
+    Large("L");
     
     private final String label;
     CupSize(String label) {

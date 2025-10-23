@@ -8,22 +8,20 @@ package com.heycream.model;
  *
  * @author lenovo
  */
-public class Topping {
+public enum CupType {
+    Cone("Cone"),Cup("Cup");
     
-    //attribute 
-    private String name;
-    
-    //constructor
-    public Topping(String name)
-    {
-        this.name = name;
+    private final String label;
+    CupType(String label) {
+        this.label = label;
     }
-    
-    //method
-    public String getName(){ return name; }
+
+    public String getLabel() {
+        return label;
+    }
+
     @Override
-    public String toString() 
-    {
-        return name;
+    public String toString() {
+        return label;
     }
 }

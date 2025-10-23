@@ -33,7 +33,7 @@ public class UIManager {
         timeDisplay = currentTime;
         System.out.println("time for now : " + formatTime(currentTime));
     }
-    public void showOrder(Customer customer)
+    public void showOrder()
     {
         orderSlip.displayOrder();
     }

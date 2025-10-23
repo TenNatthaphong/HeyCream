@@ -36,7 +36,11 @@ public class Player {
     public void pourSauce(Sauce sauce) { this.currentSauce = sauce; }
     public void serve(Customer customer)
     {
-        Cup readyCup = new Cup(currentCup.getSize());
+        if (currentCup == null) {
+        System.out.println("Error: Player has no current cup!");
+        return;
+        }
+        Cup readyCup = new Cup(currentCup.getSize(),currentCup.getType());
         scoops.forEach(readyCup::addScoop);
         toppings.forEach(readyCup::addTopping);
         readyCup.addSauce(currentSauce);
@@ -44,4 +48,12 @@ public class Player {
         customer.reactToOrder(correct);
     }
     
+    //simulator
+    public void prepareOrder(Order order) {
+    if (order == null) return;
+    this.currentCup = new Cup(order.getRequestedCup().getSize(), order.getRequestedCup().getType());
+    this.scoops = new ArrayList<>(order.getScoops());
+    this.toppings = new ArrayList<>(order.getToppings());
+    this.currentSauce = order.getSauce();
+}
 }

@@ -24,5 +24,9 @@ public class Sauce {
     //method
     public String getName(){ return name; }
     public String getColor(){ return color; }
-    
+    @Override
+    public String toString() 
+    {
+        return name;
+    }
 }

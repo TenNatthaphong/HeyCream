@@ -6,6 +6,9 @@ package com.heycream.utils;
 
 import java.util.*;
 import com.heycream.model.*;
+import static com.heycream.model.CupSize.Large;
+import static com.heycream.model.CupSize.Medium;
+import static com.heycream.model.CupSize.Small;
 /**
  *
  * @author lenovo
@@ -35,6 +38,15 @@ public class Randomizer {
         );
         return toppings.get(random.nextInt(toppings.size()));
     }
+    public static String randomName() {
+        List<String> name = Arrays.asList(
+                ("Jiew"),
+                ("Ten"),
+                ("Nick"),
+                ("Makham")
+        );
+        return name.get(random.nextInt(name.size()));
+    }
     public static Sauce randomSauce() {
         List<Sauce> sauces = Arrays.asList(
                 new Sauce("Chocolate", "dark brown"),
@@ -44,18 +56,25 @@ public class Randomizer {
         );
         return sauces.get(random.nextInt(sauces.size()));
     }
+    public static CupType randomCupType() {
+        CupType[] types = CupType.values();
+        return types[random.nextInt(types.length)];
+    }
     public static CupSize randomCupSize() {
         CupSize[] sizes = CupSize.values();
         return sizes[random.nextInt(sizes.length)];
     }
     public static Cup randomCup()
     {
+        CupType type = randomCupType();
         CupSize size = randomCupSize();
-        Cup cup = new Cup(size);
-        int maxScoops;
-        int maxToppings;
-
-        switch (size) {
+        Cup cup = new Cup(size,type);
+        int maxScoops = 0;
+        int maxToppings = 0;
+        
+        if(type.getLabel()=="Cup")
+        {
+            switch (size) {
         case Small:
             maxScoops = 1;
             maxToppings = 1;
@@ -65,26 +84,26 @@ public class Randomizer {
             maxToppings = 2;
             break;
         case Large:
+            defualt:
             maxScoops = 3;
             maxToppings = 3;
             break;
-        case Cone:
-        default:
+            }
+        }
+        else
+        {
             maxScoops = 2;
             maxToppings = 2;
-            break;
-        
         }
         int scoopCount = 1 + random.nextInt(maxScoops);
         for (int i = 0; i < scoopCount; i++) {
-            cup.addScoop(randomIceCream());
-        }
-
-        int toppingCount = random.nextInt(maxToppings + 1); // อาจไม่มี topping ก็ได้
-        for (int i = 0; i < toppingCount; i++) {
+           cup.addScoop(randomIceCream());
+         }
+        int toppingCount = random.nextInt(maxToppings + 1);
+         for (int i = 0; i < toppingCount; i++) {
             cup.addTopping(randomTopping());
         }
-
+        cup.addName(randomName());
         cup.addSauce(randomSauce());
         return cup;
     }
