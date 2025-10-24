@@ -43,58 +43,106 @@ public class Randomizer {
     };
     
     //method
-    public static String randomCustomerName(int index) {
-        String base = NAMES[R.nextInt(NAMES.length)];
-        return base + "#" + index;
-    }
-    
-    public static Cup randomCup() {
-        CupSize size = CupSize.values()[R.nextInt(CupSize.values().length)];
-        CupType type = CupType.values()[R.nextInt(CupType.values().length)];
-        return new Cup(size, type);
-    }
-    
-    public static Order randomOrder() {
-        Cup cup = randomCup();
-        Order order = new Order(cup);
-
-        int scoopCount = 1 + R.nextInt(MAX_SCOOPS);
-        addDistinct(order, "IceCream", new ArrayList<>(FLAVORS.keySet()), scoopCount);
-
-        int toppingCount = R.nextInt(MAX_TOPPINGS + 1);
-        addDistinct(order, "Topping", TOPPINGS, toppingCount);
-
-        if (R.nextBoolean())
-        {
-            List<String> sauceNames = new ArrayList<>(SAUCES.keySet());
-            String s = sauceNames.get(R.nextInt(sauceNames.size()));
-            String color = SAUCES.getOrDefault(s, "Unknown");
-            order.addItem(new Sauce(s, color));
-        }
-        return order;
-    }
-    private static void addDistinct(Order order, String type, List<String> names, int count) 
+    public static String randomName() 
     {
-        List<String> bag = new ArrayList<>(names);
-        Collections.shuffle(bag, R);
-        for (int i = 0; i < count && i < bag.size(); i++) 
+        return NAMES[R.nextInt(NAMES.length)];
+    }   
+    private static IceCream randomIceCream() 
+    {
+        List<String> flavorNames = new ArrayList<>(FLAVORS.keySet());
+        String flavor = flavorNames.get(R.nextInt(flavorNames.size()));
+        String color = FLAVORS.getOrDefault(flavor, "Unknown");
+        return new IceCream(flavor, color);
+    }
+
+    private static Topping randomTopping() 
+    {
+        String name = TOPPINGS[R.nextInt(TOPPINGS.length)];
+        return new Topping(name);
+    }
+
+    private static Sauce randomSauce() 
+    {
+        List<String> sauceNames = new ArrayList<>(SAUCES.keySet());
+        String s = sauceNames.get(R.nextInt(sauceNames.size()));
+        String color = SAUCES.getOrDefault(s, "Unknown");
+        return new Sauce(s, color);
+    }
+
+    private static CupType randomCupType() 
+    {
+        double chance = R.nextDouble(); // random 0.0 - 1.0
+
+        if (chance < 0.25)
         {
-            String name = bag.get(i);
-            switch (type) 
+            return CupType.Cone; // 25%
+        } 
+        else 
+        {
+            return CupType.Cup;  // 75%
+        }
+    }
+    private static CupSize randomCupSize() 
+    {
+        CupSize[] sizes = CupSize.values();
+        return sizes[R.nextInt(sizes.length)];
+    }
+    
+    public static Cup randomCup() 
+    {
+        CupType type = randomCupType();
+        CupSize size = randomCupSize();
+        if (type == CupType.Cone) 
+        {
+            size = CupSize.Medium;
+        }
+        Cup cup = new Cup(size, type);
+
+        int fixedScoops;
+        int maxToppings;
+
+        // fixed scoop by cup size / type
+        if (type == CupType.Cup) 
+        {
+            switch (size) {
+                case Small -> { fixedScoops = 1; maxToppings = 1; }
+                case Medium -> { fixedScoops = 2; maxToppings = 2; }
+                case Large -> { fixedScoops = 3; maxToppings = 3; }
+                default -> { fixedScoops = 1; maxToppings = 1; }
+            }
+        } 
+        else
+        {
+            fixedScoops = 2;
+            maxToppings = 2;
+        }
+        for (int i = 0; i < fixedScoops; i++) 
+        {
+            cup.addScoop(randomIceCream());
+        }
+        int toppingCount = R.nextInt(maxToppings + 1);
+        if (toppingCount > 0) 
+        {
+            List<String> bag = new ArrayList<>(Arrays.asList(TOPPINGS));
+            Collections.shuffle(bag, R);
+            for (int i = 0; i < toppingCount && i < bag.size(); i++) 
             {
-                case "IceCream":
-                    String color = FLAVORS.getOrDefault(name, "Unknown");
-                    order.addItem(new IceCream(name, color));
-                    break;
-                case "Topping":
-                    order.addItem(new Topping(name));
-                    break;
+                cup.addTopping(new Topping(bag.get(i)));
             }
         }
+        if (type == CupType.Cup && R.nextBoolean()) 
+        {
+            cup.addSauce(randomSauce());
+        }
+        cup.addName(randomName());
+        return cup;
     }
-    private static void addDistinct(Order order, String type, String[] pool, int count) 
+    public static Order randomOrder() 
     {
-        addDistinct(order, type, Arrays.asList(pool), count);
+    Cup cup = randomCup();
+    return new Order(cup);    
+
     }
+
 
 }

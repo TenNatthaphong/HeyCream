@@ -20,11 +20,14 @@ public class IceCream extends DessertItem{
     {
         super(flavor);
         this.color = color;
+        this.price = 15;
     }
     
     //method
     public String getColor(){ return color; }
     public String getFlavor(){ return super.name; }
     @Override
-    public String getType(){ return "Ice Cream"; }
+    public String getType(){ return "IceCream"; }
+    @Override
+    public double getPrice(){ return price; }
 }

@@ -60,11 +60,11 @@ public class GameManager {
 
                     boolean correct = orderManager.checkOrder(player.getCurrentCup(), c);
                     if (correct) {
-                        uiManager.showResult(true);
-                        moneyManager.addMoney(100);
+                        moneyManager.addOrderIncome(c.getOrder());
+                        System.out.printf("+%.0f coins!%n", moneyManager.calculateOrderPrice(c.getOrder()));
                     } else {
-                        uiManager.showResult(false);
                         moneyManager.deduct(50);
+                        System.out.println("-50 coins!");
                     }
                     System.out.println("Current total: " + moneyManager.getTotal() + "\n");
                 }
@@ -81,8 +81,8 @@ public class GameManager {
          int totalCustomers = customers.size();
          int starsEarned;
          if (totalCustomers == 0) starsEarned = 0;
-         else if (moneyManager.getTotal() >= totalCustomers * 100) starsEarned = 3;
-         else if (moneyManager.getTotal() >= totalCustomers * 50) starsEarned = 2;
+         else if (moneyManager.getTotal() >= totalCustomers * 60) starsEarned = 3;
+         else if (moneyManager.getTotal() >= totalCustomers * 30) starsEarned = 2;
          else starsEarned = 1;
 
         System.out.println("Stars earned: " + starsEarned);

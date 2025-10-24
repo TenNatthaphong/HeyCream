@@ -20,7 +20,7 @@ public class OrderManager {
     //method
     public Customer generateOrder(int index) {
         Order order = Randomizer.randomOrder();
-        String name = Randomizer.randomCustomerName(index);
+        String name = Randomizer.randomName();
         return new Customer(order,name);
     }
 

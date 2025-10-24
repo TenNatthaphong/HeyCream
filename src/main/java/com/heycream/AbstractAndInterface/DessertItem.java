@@ -8,9 +8,10 @@ package com.heycream.AbstractAndInterface;
  *
  * @author lenovo
  */
-public abstract class DessertItem implements NamedItem{
+public abstract class DessertItem implements NamedItem,PricedItem{
     
     protected String name;
+    protected double price;
     
     public DessertItem(String name)
     {
@@ -18,5 +19,7 @@ public abstract class DessertItem implements NamedItem{
     }
     @Override
     public String getName() { return name; }
+    @Override
+    public abstract double getPrice();
     public abstract String getType();
 }

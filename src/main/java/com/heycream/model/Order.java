@@ -15,7 +15,7 @@ public class Order {
     
     //attribute
     private final Cup requestedCup;
-    private final List<DessertItem> items = new ArrayList<>();
+    private final List<DessertItem> items;
     private boolean completed = false;
     public static final int MAX_SCOOPS   = 3;
     public static final int MAX_TOPPINGS = 3;
@@ -25,12 +25,26 @@ public class Order {
     public Order(Cup cup)
     {
         this.requestedCup = cup;
+        this.items = new ArrayList<>();
+        if (cup.getScoops() != null) 
+        {
+            this.items.addAll(cup.getScoops());
+        }
+        if (cup.getToppings() != null) 
+        {
+            this.items.addAll(cup.getToppings());
+        }
+        if (cup.getSauce() != null) 
+        {
+            this.items.add(cup.getSauce());
+        }
     }
 
     //method
     public boolean isCompleted() { return completed; }
     public Cup getRequestedCup() { return requestedCup; }
     public void setCompleted(boolean v) { completed = v; }
+   
     public boolean addItem(DessertItem item) 
     {
         switch (item.getType()) 
@@ -78,15 +92,16 @@ public class Order {
     //display
     public String describe() 
     {
-        String scoopsStr   = getScoops().isEmpty() ? "none" : 
-                getScoops().stream().map(IceCream::getFlavor).sorted().collect(Collectors.joining(", "));
-        String toppingsStr = getToppings().isEmpty() ? "none" : 
-                getToppings().stream().map(Topping::getName).sorted().collect(Collectors.joining(", "));
+        String scoopsStr = getScoops().isEmpty() ? "none" :
+            getScoops().stream().map(IceCream::getFlavor).sorted().collect(Collectors.joining(", "));
+        String toppingsStr = getToppings().isEmpty() ? "none" :
+            getToppings().stream().map(Topping::getName).sorted().collect(Collectors.joining(", "));
         String sauceStr = getSauce().map(Sauce::getName).orElse("none");
 
         StringBuilder sb = new StringBuilder();
         sb.append("Order Details\n")
           .append("--------------------\n")
+          .append("Cup Type: ").append(requestedCup.getType()).append("\n")  // เพิ่ม type ให้ชัด
           .append("Cup Size: ").append(requestedCup.getSize()).append("\n")
           .append("Ice Cream: ").append(scoopsStr).append("\n")
           .append("Toppings: ").append(toppingsStr).append("\n")
@@ -95,6 +110,7 @@ public class Order {
           .append("Status: ").append(completed ? "Completed" : "In Progress").append("\n");
         return sb.toString();
     }
+
     
     //match
     public boolean checkMatch(Cup actualCup) 
@@ -126,15 +142,6 @@ public class Order {
 
         //compare Request and Actual
         boolean result = cupMatch && scoopMatch && toppingMatch && sauceMatch;
-
-        System.out.println("DEBUG => cupMatch=" + cupMatch + ", scoopMatch=" + scoopMatch +
-                ", toppingMatch=" + toppingMatch + ", sauceMatch=" + sauceMatch);
-        System.out.println("Requested scoops=" + reqScoops);
-        System.out.println("Actual scoops=" + actScoops);
-        System.out.println("Requested toppings=" + reqToppings);
-        System.out.println("Actual toppings=" + actToppings);
-        System.out.println("Requested sauce=" + reqSauce + ", Actual sauce=" + actSauce);
-        System.out.println("Result = " + result);
 
         return result;
     }

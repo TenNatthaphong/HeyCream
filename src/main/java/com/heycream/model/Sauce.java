@@ -20,6 +20,7 @@ public class Sauce extends DessertItem{
     {
         super(name);
         this.color = color;
+        this.price = 4.0;
     }
     
     //method
@@ -28,4 +29,6 @@ public class Sauce extends DessertItem{
     public String getName(){ return name; }
     @Override
     public String getType(){ return "Sauce"; }
+    @Override
+    public double getPrice() { return price; }
 }

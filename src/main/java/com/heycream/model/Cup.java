@@ -32,7 +32,16 @@ public class Cup {
     
     //method
     public void addScoop(IceCream iceCream){ scoops.add(iceCream); }
-    public void addTopping(Topping topping){ toppings.add(topping); }
+    public void addTopping(Topping t) 
+    {
+        if (t == null) return;
+        boolean exists = this.toppings.stream()
+            .anyMatch(x -> x.getName().equalsIgnoreCase(t.getName()));
+        if (!exists && this.toppings.size() < Order.MAX_TOPPINGS) 
+        {
+            this.toppings.add(t);
+        }
+    }
     public void addSauce(Sauce sauce){ this.sauce = sauce; }
     public void addName(String name){ this.name = name; }
     public String getDescription()

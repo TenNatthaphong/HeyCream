@@ -37,17 +37,6 @@ public class UIManager {
     {
         orderSlip.displayOrder();
     }
-    public void showResult(boolean correct) 
-    {
-        if(correct)
-        {
-            System.out.println("+100 coins!");
-        }
-        else
-        {
-            System.out.println("-50 coins");
-        }
-    }
     private String formatTime(int minute)
     {
         int hour = 12 + (minute/60);
