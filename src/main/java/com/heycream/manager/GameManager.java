@@ -21,6 +21,8 @@ public class GameManager {
     private Player player;
     private List<Customer> customers;
     private boolean isRunning;
+    private Customer currentCustomer;
+    private int customerStartMinute; 
 
     // constructor
     public GameManager() {
@@ -31,6 +33,7 @@ public class GameManager {
         moneyManager = new MoneyManager();
         uiManager = new UIManager();
         isRunning = true;
+        currentCustomer = null;
     }
 
     // method
@@ -41,49 +44,54 @@ public class GameManager {
 
         while (timeManager.isOpen()) 
         {
-            timeManager.tick(); 
-            if(timeManager.isOpen())
-            {
-                if (Math.random() < 0.3) 
-                { 
-                    int id = customers.size() + 1;
-                    System.out.println("Customer " + id + " enters at " + timeManager.getTime() + "...");
-                    Customer c = orderManager.generateOrder(id);
-                    customers.add(c);
-
-                    uiManager.setOrder(c.getOrder());
-                    uiManager.showOrder();
-
-                    System.out.println("Player preparing order...");
-                    player.prepareOrder(c.getOrder());
-                    player.serve(c);
-
-                    boolean correct = orderManager.checkOrder(player.getCurrentCup(), c);
-                    if (correct) 
+           timeManager.tick();
+           for (Customer c : customers) 
+           {
+                if (!c.hasLeft()) 
+                {
+                    int waited = timeManager.getCurrentMinute() - c.getArrivalMinute();                 
+                    if (waited > c.getBehavior().getPatience()) 
                     {
-                        int waitTime = timeManager.getCurrentMinute() - c.getArrivalMinute();
-                        int patience = c.getBehavior().getPatience();
-                        double tip = c.getBehavior().getTipBonus();
-                        double basePrice = moneyManager.calculateOrderPrice(c.getOrder());
-                        if (waitTime > patience) 
-                        {
-                            System.out.println(c.getName() + " waited too long! (-50%)");
-                            basePrice *= 0.5;
-                        } 
-                        else {
-                            basePrice *= tip;
-                        }
-                        System.out.println("(" + c.getName() + " waited " + waitTime + " mins, patience " + patience + ")");
-                        moneyManager.addMoney((int) basePrice);
-                        System.out.println("+" + (int)basePrice + " coins!");
-                    } 
-                    else 
-                    {
-                        c.reactToOrder(false);
-                        moneyManager.deduct(30);
+                        c.setLeft(true);
+                        System.out.println(c.getName() + " (" + c.getBehavior().getMood() + ") got tired and left!");
                     }
-                    System.out.println("Current total: " + moneyManager.getTotal() + "\n");
                 }
+            }
+
+            if (Math.random() < 0.3) 
+            {
+                int id = customers.size() + 1;
+                Customer c = orderManager.generateOrder(id);
+                customers.add(c);
+
+                uiManager.setOrder(c.getOrder());
+                uiManager.showOrder();
+
+                System.out.println("Player preparing order...");
+                player.prepareOrder(c.getOrder());
+
+                boolean correct = orderManager.checkOrder(player.getCurrentCup(), c);
+                int waited = timeManager.getCurrentMinute() - c.getArrivalMinute();
+                double basePrice = c.getOrder().getTotalPrice();
+                double tipBonus = c.getBehavior().getTipBonus();
+
+                if (waited > c.getBehavior().getPatience()) 
+                {
+                    System.out.println(c.getName() + " already left! No money gained.");
+                } 
+                else if (correct) 
+                {
+                    System.out.println(c.getName() + " is happy! (" + c.getBehavior().getMood() + ")");
+                    double earned = basePrice * tipBonus;
+                    moneyManager.addMoney((int)earned);
+                    System.out.println("+%.2f coins!".formatted(earned));
+                } 
+                else 
+                {
+                    System.out.println(c.getName() + " didn't like it! (-50%)");
+                    moneyManager.deduct((int)(basePrice * 0.5));
+                }
+                System.out.println("Current total: " + moneyManager.getTotal());
             }
         }
         endGame();

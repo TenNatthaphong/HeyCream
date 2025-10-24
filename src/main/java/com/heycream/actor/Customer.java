@@ -21,6 +21,7 @@ public class Customer {
     private boolean isWaiting;
     private CustomerBehavior behavior;
     private int arrivalMinute;
+    private boolean left = false;
     //constructor
     public Customer(String name, Order order, CustomerBehavior behavior, int arrivalMinute) 
     {
@@ -62,4 +63,6 @@ public class Customer {
     public Order getOrder(){ return order; }
     public int getPatience() { return patience; }
     public boolean isSatisfied() { return satisfied; }
+    public boolean hasLeft() { return left; }
+    public void setLeft(boolean left) { this.left = left; }
 }

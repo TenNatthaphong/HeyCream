@@ -110,6 +110,15 @@ public class Order {
           .append("Status: ").append(completed ? "Completed" : "In Progress").append("\n");
         return sb.toString();
     }
+    public double getTotalPrice() 
+    {
+        double total = 0.0;
+        for (DessertItem item : items)
+        {
+            total += item.getPrice();
+        }
+        return total;
+    }
 
     
     //match
