@@ -39,7 +39,7 @@ public class Randomizer {
     );
     private static final String[] TOPPINGS =
     {
-        "Oreo", "Almond", "Walnut", "ChocoChip", "Sprinkles", "Pocky"
+        "Oreo", "Cherrie", "Banana", "Coconut", "Cereal", "Candy"
     };
     
     //method

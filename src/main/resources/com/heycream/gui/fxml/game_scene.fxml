@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.heycream.gui.GameSceneController"
+            prefWidth="900" prefHeight="600"
+            style="-fx-background-color: linear-gradient(to bottom, #fff0f5, #d6f5ff);">
+
+    <top>
+        <HBox spacing="40" alignment="CENTER">
+            <padding>
+                <Insets top="15" right="15" bottom="15" left="15"/>
+            </padding>
+            <Label text="🍦 HeyCream Shop 🍦"
+                   style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #ff6699;"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <VBox alignment="CENTER_RIGHT" spacing="5">
+                <Label fx:id="timeLabel" text="Time: 12:00" style="-fx-font-size: 16px;"/>
+                <Label fx:id="coinLabel" text="Coins: 0" style="-fx-font-size: 16px;"/>
+            </VBox>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="15" alignment="CENTER" padding="20">
+            <TitledPane text="📜 Order Slip" expanded="true" collapsible="false"
+                        style="-fx-font-size: 18px; -fx-background-color: #ffffffaa;">
+                <content>
+                    <TextArea fx:id="orderArea" editable="false"
+                              prefWidth="800" prefHeight="250"
+                              style="-fx-font-family: 'Consolas'; -fx-font-size: 14px;"/>
+                </content>
+            </TitledPane>
+
+            <TitledPane text="🧁 Player Actions" expanded="true" collapsible="false">
+                <content>
+                    <HBox spacing="20" alignment="CENTER" padding="15">
+                        <Button text="Serve Order" fx:id="serveButton" onAction="#onServe"
+                                style="-fx-font-size: 16px; -fx-background-color: #ffb6c1; -fx-background-radius: 8;"/>
+                        <Button text="Next Order" fx:id="nextButton" onAction="#onNextOrder"
+                                style="-fx-font-size: 16px; -fx-background-color: #aee8ff; -fx-background-radius: 8;"/>
+                        <Button text="Back to Menu" fx:id="backButton" onAction="#onBackToMenu"
+                                style="-fx-font-size: 16px; -fx-background-color: #ffd1dc; -fx-background-radius: 8;"/>
+                    </HBox>
+                </content>
+            </TitledPane>
+
+            <TextArea fx:id="consoleArea" prefWidth="850" prefHeight="150" editable="false"
+                      style="-fx-font-family: 'Consolas'; -fx-font-size: 13px; -fx-background-radius: 10;"/>
+        </VBox>
+    </center>
+</BorderPane>
+
+
