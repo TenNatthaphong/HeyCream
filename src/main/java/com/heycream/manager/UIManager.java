@@ -5,7 +5,7 @@
 package com.heycream.manager;
 
 import com.heycream.actor.Customer;
-import com.heycream.ui.OrderSlip;
+import com.heycream.model.OrderSlip;
 import com.heycream.model.Order;
 /**
  *

@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.heycream.ui;
+package com.heycream.model;
 
 import com.heycream.AbstractAndInterface.DessertItem;
 import com.heycream.model.Order;
