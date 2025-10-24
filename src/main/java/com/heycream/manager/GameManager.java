@@ -12,8 +12,8 @@ import java.util.*;
  * @author lenovo
  */
 public class GameManager {
-    
-    //attribute
+
+    // attribute
     private OrderManager orderManager;
     private TimeManager timeManager;
     private MoneyManager moneyManager;
@@ -21,10 +21,9 @@ public class GameManager {
     private Player player;
     private List<Customer> customers;
     private boolean isRunning;
-    
-    //constructor
-    public GameManager()
-    {
+
+    // constructor
+    public GameManager() {
         player = new Player();
         customers = new ArrayList<>();
         orderManager = new OrderManager();
@@ -33,89 +32,59 @@ public class GameManager {
         uiManager = new UIManager();
         isRunning = true;
     }
-    
-    //method
-    public void startGame()
+
+    // method
+    public void startGame() 
     {
         System.out.println("HeyCream Game Starting...");
-//        while(isRunning)
-//        {
-//            update();
-//        }
-//        endGame();
-        simulateDay();
+        System.out.println("Shop opens at 12:00 and closes at 21:00\n");
+
+        while (timeManager.isOpen()) 
+        {
+            timeManager.tick(); 
+            if(timeManager.isOpen())
+            {
+                if (Math.random() < 0.3) 
+                { 
+                    int id = customers.size() + 1;
+                    System.out.println("Customer " + id + " enters at " + timeManager.getTime() + "...");
+                    Customer c = orderManager.generateOrder(id);
+                    customers.add(c);
+
+                    uiManager.setOrder(c.getOrder());
+                    uiManager.showOrder();
+
+                    System.out.println("Player preparing order...");
+                    player.prepareOrder(c.getOrder());
+                    player.serve(c);
+
+                    boolean correct = orderManager.checkOrder(player.getCurrentCup(), c);
+                    if (correct) {
+                        uiManager.showResult(true);
+                        moneyManager.addMoney(100);
+                    } else {
+                        uiManager.showResult(false);
+                        moneyManager.deduct(50);
+                    }
+                    System.out.println("Current total: " + moneyManager.getTotal() + "\n");
+                }
+            }
+        }
         endGame();
     }
-    private void simulateDay() {
-        for (int i = 1; i <= 3; i++) { 
-            System.out.println("Customer " + i + " enters...");
-            Customer c = orderManager.generateOrder(i);
-            customers.add(c);
 
-            uiManager.setOrder(c.getOrder());
-            uiManager.showOrder();
+    public void endGame() {
+        System.out.println("\nShop closed at " + timeManager.getTime());
+        System.out.println("Total customers served: " + customers.size());
+        System.out.println("Total money: " + moneyManager.getTotal());
 
-            System.out.println("Player preparing order...");
-            player.prepareOrder(c.getOrder());
-            player.serve(c);
+         int totalCustomers = customers.size();
+         int starsEarned;
+         if (totalCustomers == 0) starsEarned = 0;
+         else if (moneyManager.getTotal() >= totalCustomers * 100) starsEarned = 3;
+         else if (moneyManager.getTotal() >= totalCustomers * 50) starsEarned = 2;
+         else starsEarned = 1;
 
-           
-        }
-        
-    }
-
-//    public void update()
-//    {
-//        timeManager.tick();
-//        if(!timeManager.isOpen())
-//        {
-//            isRunning = false;
-//            return;
-//        }
-//        Customer c= orderManager.generateOrder();
-//        customers.add(c);
-//        System.out.println(c.getName() );
-//        player.serve(c);
-//        
-//        boolean isCorrect = orderManager.checkOrder(player.getCurrentCup(),c);
-//        if(isCorrect)
-//        {
-//            uiManager.showResult(true);
-//            moneyManager.addMoney(100);
-//        }
-//        else
-//        {
-//            uiManager.showResult(false);
-//            moneyManager.deduct(50);
-//        }
-//    }
-    public void endGame()
-    {
-        int happyCustomers = 0; 
-        int totalCustomers = customers.size();
-
-        for (Customer c : customers) {
-        player.prepareOrder(c.getOrder());
-        boolean correct = orderManager.checkOrder(player.getCurrentCup(), c);
-        if (correct) {
-            happyCustomers++;
-            moneyManager.addMoney(100);
-        } else {
-            moneyManager.addMoney(-50);
-        }
-    }
-    System.out.println("\nShop closed!");
-    System.out.println("Total money: " + moneyManager.getTotal());
-    int starsEarned = 0;
-    if (happyCustomers == totalCustomers) {
-        starsEarned = 3;
-    } else if (happyCustomers >= totalCustomers * 2 / 3) {
-        starsEarned = 2;
-    } else if (happyCustomers >= totalCustomers / 3) {
-        starsEarned = 1;
-    } else {
-        starsEarned = 0;
-    }
-    System.out.println("Stars earned: " + starsEarned);
+        System.out.println("Stars earned: " + starsEarned);
     }
 }

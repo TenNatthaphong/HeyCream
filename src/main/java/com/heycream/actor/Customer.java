@@ -17,17 +17,31 @@ public class Customer {
     private Order order;
     private int patience;
     private boolean satisfied;
-    
+    private boolean isWaiting;
     //constructor
     public Customer(Order order,String name) 
     {
         this.name = name;
         this.order = order;
         this.patience = 100;
-        this.satisfied = false;
     }
     
     //method
+    public void startTimer() 
+    {
+        this.patience = 60;  
+        this.isWaiting = true;
+    }
+    public void tick() 
+    {
+        if (!isWaiting) return;
+        patience--;
+        if (patience <= 0) 
+        {
+            isWaiting = false;
+            System.out.println(name + " ran out of patience!");
+        }
+    }
     public void generateOrder(Order newOrder)
     {
         this.order = newOrder;
@@ -38,11 +52,7 @@ public class Customer {
         if(isCorrect) System.out.println(name + " is happy!");
         else System.out.println(name + " is upset!");
     }
-    private void decreasePatience()
-    {
-        patience -= 10;
-        if(patience < 0) patience = 0;
-    }   
+    public boolean isOutOfTime() { return !isWaiting; }
     public String getName(){ return name; }
     public Order getOrder(){ return order; }
     public int getPatience() { return patience; }
