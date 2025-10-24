@@ -8,7 +8,15 @@ package com.heycream.AbstractAndInterface;
  *
  * @author lenovo
  */
-public interface Orderable {
-    void takeOrder();
-    void serveOrder();
+public abstract class DessertItem implements NamedItem{
+    
+    protected String name;
+    
+    public DessertItem(String name)
+    {
+        this.name = name;
+    }
+    @Override
+    public String getName() { return name; }
+    public abstract String getType();
 }

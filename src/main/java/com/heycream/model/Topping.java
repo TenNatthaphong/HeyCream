@@ -4,26 +4,26 @@
  */
 package com.heycream.model;
 
+import com.heycream.AbstractAndInterface.DessertItem;
+
 /**
  *
  * @author lenovo
  */
-public class Topping {
+public class Topping extends DessertItem{
     
-    //attribute 
-    private String name;
+    //attribute from Super
     
     //constructor
     public Topping(String name)
     {
-        this.name = name;
+        super(name);
     }
     
     //method
-    public String getName(){ return name; }
     @Override
-    public String toString() 
-    {
-        return name;
-    }
+    public String getType(){ return "Topping"; }
+    @Override
+    public String getName(){ return name; }
+    
 }

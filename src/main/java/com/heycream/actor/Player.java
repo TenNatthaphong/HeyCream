@@ -34,30 +34,24 @@ public class Player{
     public void scoopIceCream(IceCream flavor) { scoops.add(flavor); }
     public void addTopping(Topping topping) {toppings.add(topping); }
     public void pourSauce(Sauce sauce) { this.currentSauce = sauce; }
-    public void serve(Customer customer)
+    public void serve(Customer customer) 
     {
-        if (currentCup == null) {
-        System.out.println("Error: Player has no current cup!");
-        return;
+        if (currentCup == null) 
+        {
+            System.out.println("Error: Player has no current cup!");
+            return;
         }
-        Cup readyCup = new Cup(currentCup.getSize(),currentCup.getType());
-        scoops.forEach(readyCup::addScoop);
-        toppings.forEach(readyCup::addTopping);
-        readyCup.addSauce(currentSauce);
+        boolean correct = customer.getOrder().checkMatch(currentCup);
+        customer.reactToOrder(correct);
     }
-    
-    //simulator
-    public void prepareOrder(Order order) {
-    if (order == null) return;
-    this.currentCup = new Cup(order.getRequestedCup().getSize(), order.getRequestedCup().getType());
-    this.scoops = new ArrayList<>(order.getScoops());
-    this.toppings = new ArrayList<>(order.getToppings());
-    for (IceCream ic : scoops) {
-        currentCup.addScoop(ic);
+    public void prepareOrder(Order order) 
+    {
+        if (order == null) return;
+        this.currentCup = new Cup(order.getRequestedCup().getSize(),
+                                  order.getRequestedCup().getType());
+        for (IceCream ic : order.getScoops())   currentCup.addScoop(ic);
+        for (Topping tp : order.getToppings())  currentCup.addTopping(tp);
+        currentCup.addSauce(order.getSauce().orElse(null));
     }
-    for (Topping tp : toppings) {
-        currentCup.addTopping(tp);
-    }
-    this.currentSauce = order.getSauce();
-}
+
 }

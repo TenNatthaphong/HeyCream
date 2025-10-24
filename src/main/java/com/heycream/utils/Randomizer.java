@@ -6,9 +6,7 @@ package com.heycream.utils;
 
 import java.util.*;
 import com.heycream.model.*;
-import static com.heycream.model.CupSize.Large;
-import static com.heycream.model.CupSize.Medium;
-import static com.heycream.model.CupSize.Small;
+import static com.heycream.model.Order.*;
 /**
  *
  * @author lenovo
@@ -16,95 +14,87 @@ import static com.heycream.model.CupSize.Small;
 public class Randomizer {
     
     //attribute
-    private static final Random random = new Random();
+    private static final Random R = new Random();
+    private static final String[] NAMES = {
+        "Piggy", "Molly", "Max", "Luna", "Milo", "Bella",
+        "Coco", "Rocky", "Daisy", "Charlie", "Nana", "Poppy",
+        "Ruby", "Oreo", "Pumpkin", "Pancake"
+    };
+
+    private static final Map<String, String> FLAVORS = Map.of
+    (
+        "Vanilla", "White",
+        "Chocolate", "Brown",
+        "Strawberry", "Pink",
+        "Matcha", "Green",
+        "Mango", "Yellow",
+        "Blueberry", "Purple"
+    );
+    private static final Map<String, String> SAUCES = Map.of
+     (
+        "Caramel", "Brown",
+        "Chocolate", "DarkBrown",
+        "Strawberry", "Red",
+        "Honey", "Golden"
+    );
+    private static final String[] TOPPINGS =
+    {
+        "Oreo", "Almond", "Walnut", "ChocoChip", "Sprinkles", "Pocky"
+    };
     
     //method
-    public static IceCream randomIceCream()
-    {
-        List<IceCream> iceCream = Arrays.asList(
-                new IceCream("Vanilla", "white"),
-                new IceCream("Chocolate", "brown"),
-                new IceCream("Strawberry", "pink"),
-                new IceCream("Matcha", "green")
-        );
-        return iceCream.get(random.nextInt(iceCream.size()));
+    public static String randomCustomerName(int index) {
+        String base = NAMES[R.nextInt(NAMES.length)];
+        return base + "#" + index;
     }
-    public static Topping randomTopping() {
-        List<Topping> toppings = Arrays.asList(
-                new Topping("Oreo"),
-                new Topping("Brownie"),
-                new Topping("Banana"),
-                new Topping("Marshmallow")
-        );
-        return toppings.get(random.nextInt(toppings.size()));
+    
+    public static Cup randomCup() {
+        CupSize size = CupSize.values()[R.nextInt(CupSize.values().length)];
+        CupType type = CupType.values()[R.nextInt(CupType.values().length)];
+        return new Cup(size, type);
     }
-    public static String randomName() {
-        List<String> name = Arrays.asList(
-                ("Jiew"),
-                ("Ten"),
-                ("Nick"),
-                ("Makham")
-        );
-        return name.get(random.nextInt(name.size()));
-    }
-    public static Sauce randomSauce() {
-        List<Sauce> sauces = Arrays.asList(
-                new Sauce("Chocolate", "dark brown"),
-                new Sauce("Strawberry", "red"),
-                new Sauce("Caramel", "golden"),
-                new Sauce("Honey", "yellow")
-        );
-        return sauces.get(random.nextInt(sauces.size()));
-    }
-    public static CupType randomCupType() {
-        CupType[] types = CupType.values();
-        return types[random.nextInt(types.length)];
-    }
-    public static CupSize randomCupSize() {
-        CupSize[] sizes = CupSize.values();
-        return sizes[random.nextInt(sizes.length)];
-    }
-    public static Cup randomCup()
-    {
-        CupType type = randomCupType();
-        CupSize size = randomCupSize();
-        Cup cup = new Cup(size,type);
-        int maxScoops = 0;
-        int maxToppings = 0;
-        
-        if(type.getLabel()=="Cup")
+    
+    public static Order randomOrder() {
+        Cup cup = randomCup();
+        Order order = new Order(cup);
+
+        int scoopCount = 1 + R.nextInt(MAX_SCOOPS);
+        addDistinct(order, "IceCream", new ArrayList<>(FLAVORS.keySet()), scoopCount);
+
+        int toppingCount = R.nextInt(MAX_TOPPINGS + 1);
+        addDistinct(order, "Topping", TOPPINGS, toppingCount);
+
+        if (R.nextBoolean())
         {
-            switch (size) {
-        case Small:
-            maxScoops = 1;
-            maxToppings = 1;
-            break;
-        case Medium:
-            maxScoops = 2;
-            maxToppings = 2;
-            break;
-        case Large:
-            defualt:
-            maxScoops = 3;
-            maxToppings = 3;
-            break;
+            List<String> sauceNames = new ArrayList<>(SAUCES.keySet());
+            String s = sauceNames.get(R.nextInt(sauceNames.size()));
+            String color = SAUCES.getOrDefault(s, "Unknown");
+            order.addItem(new Sauce(s, color));
+        }
+        return order;
+    }
+    private static void addDistinct(Order order, String type, List<String> names, int count) 
+    {
+        List<String> bag = new ArrayList<>(names);
+        Collections.shuffle(bag, R);
+        for (int i = 0; i < count && i < bag.size(); i++) 
+        {
+            String name = bag.get(i);
+            switch (type) 
+            {
+                case "IceCream":
+                    String color = FLAVORS.getOrDefault(name, "Unknown");
+                    order.addItem(new IceCream(name, color));
+                    break;
+                case "Topping":
+                    order.addItem(new Topping(name));
+                    break;
             }
         }
-        else
-        {
-            maxScoops = 2;
-            maxToppings = 2;
-        }
-        int scoopCount = 1 + random.nextInt(maxScoops);
-        for (int i = 0; i < scoopCount; i++) {
-           cup.addScoop(randomIceCream());
-         }
-        int toppingCount = random.nextInt(maxToppings + 1);
-         for (int i = 0; i < toppingCount; i++) {
-            cup.addTopping(randomTopping());
-        }
-        cup.addName(randomName());
-        cup.addSauce(randomSauce());
-        return cup;
     }
+    private static void addDistinct(Order order, String type, String[] pool, int count) 
+    {
+        addDistinct(order, type, Arrays.asList(pool), count);
+    }
+
 }

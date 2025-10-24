@@ -4,6 +4,7 @@
  */
 package com.heycream.model;
 
+import com.heycream.AbstractAndInterface.DessertItem;
 import java.util.*;
 import java.util.stream.*;
 /**
@@ -13,120 +14,128 @@ import java.util.stream.*;
 public class Order {
     
     //attribute
-    private String name;
-    private Cup requestedCup;
-    private List<IceCream> scoops;
-    private List<Topping> toppings;
-    private Sauce sauce;
-    private boolean completed;
-    
+    private final Cup requestedCup;
+    private final List<DessertItem> items = new ArrayList<>();
+    private boolean completed = false;
+    public static final int MAX_SCOOPS   = 3;
+    public static final int MAX_TOPPINGS = 3;
+    public static final int MAX_SAUCE    = 1;
     
     //constructor
-//    public Order(Cup requestedCup) {
-//        this.name = requestedCup.getName();
-//        this.requestedCup = requestedCup;
-//        this.completed = false;
-//    }
-    
-    //method
-    public String describe() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("Order Details\n");
-    sb.append("--------------------\n");
-    sb.append("Cup Size: ").append(requestedCup.getSize()).append("\n");
-
-    if (scoops == null || scoops.isEmpty())
-        sb.append("Ice Cream: none\n");
-    else
-        sb.append("Ice Cream: ")
-          .append(scoops.stream().map(IceCream::getFlavor).sorted().collect(Collectors.joining(", ")))
-          .append("\n");
-
-    if (toppings == null || toppings.isEmpty())
-        sb.append("Toppings: none\n");
-    else
-        sb.append("Toppings: ")
-          .append(toppings.stream().map(Topping::getName).sorted().collect(Collectors.joining(", ")))
-          .append("\n");
-
-    sb.append("Sauce: ").append(sauce != null ? sauce.getName() : "none").append("\n");
-    sb.append("--------------------\n");
-    sb.append("Status: ").append(completed ? "Completed" : "In Progress").append("\n");
-    return sb.toString();
-}
-
-        public boolean checkMatch(Cup actualCup) {
-         if (actualCup == null || requestedCup == null) return false;
-         boolean cupMatch = requestedCup.getType().equals(actualCup.getType()) &&
-                            requestedCup.getSize().equals(actualCup.getSize());
-         List<String> reqScoops = requestedCup.getScoops().stream()
-                 .map(IceCream::getFlavor)
-                 .sorted()
-                 .collect(Collectors.toList());
-         List<String> actScoops = actualCup.getScoops().stream()
-                 .map(IceCream::getFlavor)
-                 .sorted()
-                 .collect(Collectors.toList());
-         boolean scoopMatch = reqScoops.equals(actScoops);
-         List<String> reqToppings = requestedCup.getToppings().stream()
-                 .map(Topping::getName)
-                 .sorted()
-                 .collect(Collectors.toList());
-         List<String> actToppings = actualCup.getToppings().stream()
-                 .map(Topping::getName)
-                 .sorted()
-                 .collect(Collectors.toList());
-         boolean toppingMatch = reqToppings.equals(actToppings);
-         String reqSauce = requestedCup.getSauce() != null ? requestedCup.getSauce().getName() : "none";
-         String actSauce = actualCup.getSauce() != null ? actualCup.getSauce().getName() : "none";
-         boolean sauceMatch = reqSauce.equalsIgnoreCase(actSauce);
-
-         boolean result = cupMatch && scoopMatch && toppingMatch && sauceMatch;
-
-         // debug log
-         System.out.println("DEBUG => cupMatch=" + cupMatch + 
-                            ", scoopMatch=" + scoopMatch + 
-                            ", toppingMatch=" + toppingMatch + 
-                            ", sauceMatch=" + sauceMatch);
-         System.out.println("Requested scoops=" + reqScoops);
-         System.out.println("Actual scoops=" + actScoops);
-         System.out.println("Requested toppings=" + reqToppings);
-         System.out.println("Actual toppings=" + actToppings);
-         System.out.println("Requested sauce=" + reqSauce + ", Actual sauce=" + actSauce);
-         System.out.println("Result = " + result);
-
-         return result;
-     }
-
-
-
-
-    public void markComplete() { this.completed = true; }
-    public Cup getRequestedCup() { return requestedCup; }
-    public List<IceCream> getScoops() { return scoops; }
-    public List<Topping> getToppings() { return toppings; }
-    public Sauce getSauce() { return sauce; }
-    public boolean isCompleted() { return completed; }
-    public String getName() { return name; }
-    
-    
-    //simulator
-    public void setName(String name) 
+    public Order(Cup cup)
     {
-    this.name = name;
+        this.requestedCup = cup;
     }
-    public Order(Cup requestedCup, List<IceCream> scoops, List<Topping> toppings, Sauce sauce) {
-        this.requestedCup = requestedCup;
-        this.scoops = (scoops != null) ? scoops : new ArrayList<>();
-        this.toppings = (toppings != null) ? toppings : new ArrayList<>();
-        this.sauce = sauce;
-        this.completed = false;
-    }
-    public Order(Cup requestedCup) {
-    this(requestedCup, new ArrayList<>(), new ArrayList<>(), 
-         requestedCup != null ? requestedCup.getSauce() : null);
-}
 
+    //method
+    public boolean isCompleted() { return completed; }
+    public Cup getRequestedCup() { return requestedCup; }
+    public void setCompleted(boolean v) { completed = v; }
+    public boolean addItem(DessertItem item) 
+    {
+        switch (item.getType()) 
+        {
+            case "IceCream":
+                if (getScoops().size() >= MAX_SCOOPS) return false;
+                break;
+            case "Topping":
+                if (getToppings().size() >= MAX_TOPPINGS) return false;
+                break;
+            case "Sauce":
+                if (getSauce().isPresent()) return false;
+                break;
+            default: return false;
+        }
+        items.add(item);
+        return true;
+    }
+    public List<IceCream> getScoops()
+    {
+        return items.stream()
+                .filter(d -> "IceCream".equals(d.getType()))
+                .map(d -> (IceCream) d)
+                .collect(Collectors.toList());
+    }
+    public List<Topping> getToppings() 
+    {
+        return items.stream()
+                .filter(d -> "Topping".equals(d.getType()))
+                .map(d -> (Topping) d)
+                .collect(Collectors.toList());
+    }
+    public Optional<Sauce> getSauce() 
+    {
+        return items.stream()
+                .filter(d -> "Sauce".equals(d.getType()))
+                .map(d -> (Sauce) d)
+                .findFirst();
+    }
+    public List<DessertItem> getAllItems() 
+    {
+        return Collections.unmodifiableList(items);
+    }
     
+    //display
+    public String describe() 
+    {
+        String scoopsStr   = getScoops().isEmpty() ? "none" : 
+                getScoops().stream().map(IceCream::getFlavor).sorted().collect(Collectors.joining(", "));
+        String toppingsStr = getToppings().isEmpty() ? "none" : 
+                getToppings().stream().map(Topping::getName).sorted().collect(Collectors.joining(", "));
+        String sauceStr = getSauce().map(Sauce::getName).orElse("none");
 
+        StringBuilder sb = new StringBuilder();
+        sb.append("Order Details\n")
+          .append("--------------------\n")
+          .append("Cup Size: ").append(requestedCup.getSize()).append("\n")
+          .append("Ice Cream: ").append(scoopsStr).append("\n")
+          .append("Toppings: ").append(toppingsStr).append("\n")
+          .append("Sauce: ").append(sauceStr).append("\n")
+          .append("--------------------\n")
+          .append("Status: ").append(completed ? "Completed" : "In Progress").append("\n");
+        return sb.toString();
+    }
+    
+    //match
+    public boolean checkMatch(Cup actualCup) 
+    {
+        if (actualCup == null || requestedCup == null) return false;
+
+        //size and type same?
+        boolean cupMatch = requestedCup.getType().equals(actualCup.getType())
+                        && requestedCup.getSize().equals(actualCup.getSize());
+
+        //map reqIceCream, actIceCream and compare
+        List<String> reqScoops = getScoops().stream()
+                .map(IceCream::getFlavor).map(String::toLowerCase).sorted().collect(Collectors.toList());
+        List<String> actScoops = actualCup.getScoops().stream()
+                .map(IceCream::getFlavor).map(String::toLowerCase).sorted().collect(Collectors.toList());
+        boolean scoopMatch = reqScoops.equals(actScoops);
+
+        //map reqTopping, actTopping and compare
+        List<String> reqToppings = getToppings().stream()
+                .map(Topping::getName).map(String::toLowerCase).sorted().collect(Collectors.toList());
+        List<String> actToppings = actualCup.getToppings().stream()
+                .map(Topping::getName).map(String::toLowerCase).sorted().collect(Collectors.toList());
+        boolean toppingMatch = reqToppings.equals(actToppings);
+
+        //map reqSauce, actSauce and compare
+        String reqSauce = getSauce().map(Sauce::getName).orElse("none").toLowerCase();
+        String actSauce = actualCup.getSauce() != null ? actualCup.getSauce().getName().toLowerCase() : "none";
+        boolean sauceMatch = reqSauce.equals(actSauce);
+
+        //compare Request and Actual
+        boolean result = cupMatch && scoopMatch && toppingMatch && sauceMatch;
+
+        System.out.println("DEBUG => cupMatch=" + cupMatch + ", scoopMatch=" + scoopMatch +
+                ", toppingMatch=" + toppingMatch + ", sauceMatch=" + sauceMatch);
+        System.out.println("Requested scoops=" + reqScoops);
+        System.out.println("Actual scoops=" + actScoops);
+        System.out.println("Requested toppings=" + reqToppings);
+        System.out.println("Actual toppings=" + actToppings);
+        System.out.println("Requested sauce=" + reqSauce + ", Actual sauce=" + actSauce);
+        System.out.println("Result = " + result);
+
+        return result;
+    }
 }

@@ -4,30 +4,27 @@
  */
 package com.heycream.model;
 
+import com.heycream.AbstractAndInterface.DessertItem;
+
 /**
  *
  * @author lenovo
  */
-public class IceCream {
+public class IceCream extends DessertItem{
     
     //attribute
-    private String flavor;
-    private String color;
+    private final String color;
     
     //constructor
     public IceCream(String flavor, String color)
     {
-        this.flavor = flavor;
+        super(flavor);
         this.color = color;
     }
     
     //method
-    public String getFlavor(){ return flavor; }
     public String getColor(){ return color; }
+    public String getFlavor(){ return super.name; }
     @Override
-    public String toString() 
-    {
-        return flavor;
-    }
-
+    public String getType(){ return "Ice Cream"; }
 }
