@@ -11,7 +11,7 @@ import java.util.*;
  *
  * @author lenovo
  */
-public class Player {
+public class Player{
     
     //attribute
     private Cup currentCup;
@@ -44,8 +44,6 @@ public class Player {
         scoops.forEach(readyCup::addScoop);
         toppings.forEach(readyCup::addTopping);
         readyCup.addSauce(currentSauce);
-        boolean correct = customer.getOrder().checkMatch(readyCup);
-        customer.reactToOrder(correct);
     }
     
     //simulator
@@ -54,6 +52,12 @@ public class Player {
     this.currentCup = new Cup(order.getRequestedCup().getSize(), order.getRequestedCup().getType());
     this.scoops = new ArrayList<>(order.getScoops());
     this.toppings = new ArrayList<>(order.getToppings());
+    for (IceCream ic : scoops) {
+        currentCup.addScoop(ic);
+    }
+    for (Topping tp : toppings) {
+        currentCup.addTopping(tp);
+    }
     this.currentSauce = order.getSauce();
 }
 }

@@ -59,16 +59,9 @@ public class GameManager {
             player.prepareOrder(c.getOrder());
             player.serve(c);
 
-            boolean correct = orderManager.checkOrder(player.getCurrentCup(), c);
-            if (correct) {
-                uiManager.showResult(true);
-                moneyManager.addMoney(100);
-            } else {
-                uiManager.showResult(false);
-                moneyManager.deduct(50);
-            }
-            System.out.println("Current total: " + moneyManager.getTotal() + "\n");
+           
         }
+        
     }
 
 //    public void update()
@@ -98,9 +91,31 @@ public class GameManager {
 //    }
     public void endGame()
     {
-        moneyManager.calculateStars();
-        System.out.println("\nShop closed!");
-        System.out.println("Total money: " + moneyManager.getTotal());
-        System.out.println("Stars earned: " + moneyManager.getStars());
+        int happyCustomers = 0; 
+        int totalCustomers = customers.size();
+
+        for (Customer c : customers) {
+        player.prepareOrder(c.getOrder());
+        boolean correct = orderManager.checkOrder(player.getCurrentCup(), c);
+        if (correct) {
+            happyCustomers++;
+            moneyManager.addMoney(100);
+        } else {
+            moneyManager.addMoney(-50);
+        }
+    }
+    System.out.println("\nShop closed!");
+    System.out.println("Total money: " + moneyManager.getTotal());
+    int starsEarned = 0;
+    if (happyCustomers == totalCustomers) {
+        starsEarned = 3;
+    } else if (happyCustomers >= totalCustomers * 2 / 3) {
+        starsEarned = 2;
+    } else if (happyCustomers >= totalCustomers / 3) {
+        starsEarned = 1;
+    } else {
+        starsEarned = 0;
+    }
+    System.out.println("Stars earned: " + starsEarned);
     }
 }

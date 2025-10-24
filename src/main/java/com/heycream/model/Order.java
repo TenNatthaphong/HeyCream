@@ -29,45 +29,32 @@ public class Order {
 //    }
     
     //method
-    public String describe()
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Order Details\n");
-        sb.append("--------------------\n");
-        sb.append("Cup Size: ").append(requestedCup.getSize()).append("\n");
-        
-        if (requestedCup.getScoops().isEmpty()) {
-            sb.append("Ice Cream: none\n");
-        } else {
-            String scoopsList = requestedCup.getScoops()
-                    .stream()
-                    .map(IceCream::getFlavor)
-                    .collect(Collectors.joining(", "));
-            sb.append("Ice Cream: ").append(scoopsList).append("\n");
-        }
+    public String describe() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Order Details\n");
+    sb.append("--------------------\n");
+    sb.append("Cup Size: ").append(requestedCup.getSize()).append("\n");
 
-        if (requestedCup.getToppings().isEmpty()) {
-            sb.append("Toppings: none\n");
-        } else {
-            String toppingList = requestedCup.getToppings()
-                    .stream()
-                    .map(Topping::getName)
-                    .collect(Collectors.joining(", "));
-            sb.append("Toppings: ").append(toppingList).append("\n");
-        }
+    if (scoops == null || scoops.isEmpty())
+        sb.append("Ice Cream: none\n");
+    else
+        sb.append("Ice Cream: ")
+          .append(scoops.stream().map(IceCream::getFlavor).sorted().collect(Collectors.joining(", ")))
+          .append("\n");
 
-        sb.append("Sauce: ");
-        if (requestedCup.getSauce() != null) {
-            sb.append(requestedCup.getSauce().getName()).append("\n");
-        } else {
-            sb.append("none\n");
-        }
+    if (toppings == null || toppings.isEmpty())
+        sb.append("Toppings: none\n");
+    else
+        sb.append("Toppings: ")
+          .append(toppings.stream().map(Topping::getName).sorted().collect(Collectors.joining(", ")))
+          .append("\n");
 
-        sb.append("--------------------\n");
-        sb.append("Status: ").append(completed ? "Completed" : "In Progress").append("\n");
+    sb.append("Sauce: ").append(sauce != null ? sauce.getName() : "none").append("\n");
+    sb.append("--------------------\n");
+    sb.append("Status: ").append(completed ? "Completed" : "In Progress").append("\n");
+    return sb.toString();
+}
 
-        return sb.toString();
-    }
         public boolean checkMatch(Cup actualCup) {
          if (actualCup == null || requestedCup == null) return false;
          boolean cupMatch = requestedCup.getType().equals(actualCup.getType()) &&

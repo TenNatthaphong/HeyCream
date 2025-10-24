@@ -44,7 +44,10 @@ public class OrderManager {
         List<Topping> toppings = new ArrayList<>();
         if (random.nextBoolean()) toppings.add(new Topping("Almond"));
         if (random.nextBoolean()) toppings.add(new Topping("Oreo"));
-
+        Sauce sauce = null;
+        for (IceCream ic : scoops) cup.addScoop(ic);
+        for (Topping tp : toppings) cup.addTopping(tp);
+        cup.addSauce(sauce);
         Order order = new Order(cup, scoops, toppings, null);
         Customer c = new Customer(order,"Piggy#" + index);
 
@@ -52,7 +55,8 @@ public class OrderManager {
     }
 
     public boolean checkOrder(Cup playerCup, Customer customer) {
-        return random.nextBoolean();
+        Order target = customer.getOrder();
+        return target.checkMatch(playerCup);
     }
     //method
 //    public Customer generateOrder() {
