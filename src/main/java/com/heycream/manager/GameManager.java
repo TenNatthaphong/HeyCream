@@ -59,12 +59,28 @@ public class GameManager {
                     player.serve(c);
 
                     boolean correct = orderManager.checkOrder(player.getCurrentCup(), c);
-                    if (correct) {
-                        moneyManager.addOrderIncome(c.getOrder());
-                        System.out.printf("+%.0f coins!%n", moneyManager.calculateOrderPrice(c.getOrder()));
-                    } else {
-                        moneyManager.deduct(50);
-                        System.out.println("-50 coins!");
+                    if (correct) 
+                    {
+                        int waitTime = timeManager.getCurrentMinute() - c.getArrivalMinute();
+                        int patience = c.getBehavior().getPatience();
+                        double tip = c.getBehavior().getTipBonus();
+                        double basePrice = moneyManager.calculateOrderPrice(c.getOrder());
+                        if (waitTime > patience) 
+                        {
+                            System.out.println(c.getName() + " waited too long! (-50%)");
+                            basePrice *= 0.5;
+                        } 
+                        else {
+                            basePrice *= tip;
+                        }
+                        System.out.println("(" + c.getName() + " waited " + waitTime + " mins, patience " + patience + ")");
+                        moneyManager.addMoney((int) basePrice);
+                        System.out.println("+" + (int)basePrice + " coins!");
+                    } 
+                    else 
+                    {
+                        c.reactToOrder(false);
+                        moneyManager.deduct(30);
                     }
                     System.out.println("Current total: " + moneyManager.getTotal() + "\n");
                 }

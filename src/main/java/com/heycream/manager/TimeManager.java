@@ -14,11 +14,11 @@ import java.time.format.*;
 public class TimeManager {
 
     // attribute
-    private int currentHour;
-    private int currentMinute;
+    private static int currentHour ;
+    private static int currentMinute;
     private boolean isOpen;
 
-    // configuration (แก้เวลาเปิด-ปิดได้ง่าย)
+    // configuration
     private final int openHour = 12;
     private final int closeHour = 21;
 
@@ -63,6 +63,14 @@ public class TimeManager {
         currentHour = openHour;
         currentMinute = 0;
         isOpen = true;
+    }
+    public int getCurrentMinute() 
+    {
+    return (currentHour - 12) * 60 + currentMinute;
+    }
+    public int getCurrentHour()
+    { 
+        return currentHour-12; 
     }
 }
 

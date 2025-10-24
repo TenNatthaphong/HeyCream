@@ -4,6 +4,7 @@
  */
 package com.heycream.manager;
 
+import com.heycream.AbstractAndInterface.*;
 import com.heycream.model.*;
 import com.heycream.actor.Customer;
 import com.heycream.utils.Randomizer;
@@ -16,12 +17,18 @@ public class OrderManager {
     
     //attribute
     private Random random = new Random();
+    private TimeManager timeManager = new TimeManager();
 
     //method
     public Customer generateOrder(int index) {
         Order order = Randomizer.randomOrder();
         String name = Randomizer.randomName();
-        return new Customer(order,name);
+        CustomerBehavior behavior;
+        double roll = Math.random();
+        if (roll < 0.6) behavior = new CalmCustomer();
+        else if (roll < 0.85) behavior = new RudeCustomer();
+        else behavior = new VIPCustomer();
+        return new Customer(name,order,behavior, timeManager.getCurrentMinute());
     }
 
     public boolean checkOrder(Cup playerCup, Customer c) {

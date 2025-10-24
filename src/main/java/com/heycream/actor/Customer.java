@@ -4,6 +4,7 @@
  */
 package com.heycream.actor;
 
+import com.heycream.AbstractAndInterface.CustomerBehavior;
 import com.heycream.model.Order;
 
 /**
@@ -18,14 +19,16 @@ public class Customer {
     private int patience;
     private boolean satisfied;
     private boolean isWaiting;
+    private CustomerBehavior behavior;
+    private int arrivalMinute;
     //constructor
-    public Customer(Order order,String name) 
+    public Customer(String name, Order order, CustomerBehavior behavior, int arrivalMinute) 
     {
         this.name = name;
         this.order = order;
-        this.patience = 100;
+        this.behavior = behavior;
+        this.arrivalMinute = arrivalMinute;
     }
-    
     //method
     public void startTimer() 
     {
@@ -52,6 +55,8 @@ public class Customer {
         if(isCorrect) System.out.println(name + " is happy!");
         else System.out.println(name + " is upset!");
     }
+    public CustomerBehavior getBehavior() { return behavior; }
+    public int getArrivalMinute() { return arrivalMinute; }
     public boolean isOutOfTime() { return !isWaiting; }
     public String getName(){ return name; }
     public Order getOrder(){ return order; }
