@@ -58,6 +58,7 @@ public class Customer {
     }
     public CustomerBehavior getBehavior() { return behavior; }
     public int getArrivalMinute() { return arrivalMinute; }
+    public void setArrivalMinute(int arrMinute) { arrivalMinute = arrMinute; }
     public boolean isOutOfTime() { return !isWaiting; }
     public String getName(){ return name; }
     public Order getOrder(){ return order; }

@@ -27,7 +27,7 @@ public class HowToPlayController implements Initializable{
     private AnchorPane rootPane;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        BackgroundManager.setupBackground(rootPane);
+        BackgroundBase.setupBase(rootPane);
         String text = """
                 🎮 Instructions:
                 1. Click 'Start Game' to open your HeyCream shop.

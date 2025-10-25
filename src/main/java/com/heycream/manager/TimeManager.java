@@ -32,7 +32,7 @@ public class TimeManager {
     // method
     public void tick() 
     {
-        currentMinute += 10;
+        currentMinute ++;
         if (currentMinute >= 60) 
         {
             currentMinute = 0;

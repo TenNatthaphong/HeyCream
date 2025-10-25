@@ -1,6 +1,6 @@
 package com.heycream.gui;
 
-import com.heycream.gui.BackgroundManager;
+import com.heycream.gui.BackgroundBase;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.Parent;
@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.Initializable;
+import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -32,7 +33,8 @@ public class MainMenuController implements Initializable{
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        BackgroundManager.setupBackground(rootPane);
+        BackgroundBase.setupBase(rootPane);
+
     }
 
     @FXML
