@@ -12,8 +12,6 @@ public class InteractionManager {
 
     private ImageView heldItem = null;
     private double offsetX, offsetY;
-
-    // สถานะ order ปัจจุบัน
     private ImageView placedCup = null;
     private final List<ImageView> scoops = new ArrayList<>();
     private final List<ImageView> toppings = new ArrayList<>();

@@ -1,6 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
 
 package com.heycream;
 
@@ -10,10 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-/**
- *
- * @author lenovo
- */
+
 public class Main extends Application{
     private static final double WIDTH = 900;
     private static final double HEIGHT = 600;
