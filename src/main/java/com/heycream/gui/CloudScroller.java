@@ -1,4 +1,4 @@
-// CloudScroller.java (ใหม่)
+
 package com.heycream.gui;
 
 import javafx.animation.AnimationTimer;

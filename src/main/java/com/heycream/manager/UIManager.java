@@ -16,21 +16,6 @@ public class UIManager {
 
     public UIManager(AnchorPane rootPane) {
         this.rootPane = rootPane;
-        setupUI();
-    }
-
-    private void setupUI() {
-        timeText = new Text("🕒 12:00");
-        timeText.setStyle("-fx-font-size: 20px; -fx-fill: #333;");
-        timeText.setLayoutX(40);
-        timeText.setLayoutY(40);
-
-        orderCountText = new Text("Order: 0");
-        orderCountText.setStyle("-fx-font-size: 18px; -fx-fill: #444;");
-        orderCountText.setLayoutX(100);
-        orderCountText.setLayoutY(520);
-
-        rootPane.getChildren().addAll(timeText, orderCountText);
     }
 
     public void showSpeechBubble(String text, Runnable onOk) {

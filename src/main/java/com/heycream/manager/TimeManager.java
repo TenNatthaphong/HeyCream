@@ -1,76 +1,50 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.heycream.manager;
 
-import java.util.*;
-import java.time.*;
-import java.time.format.*;
-/**
- *
- * @author lenovo
- */
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.scene.control.Label;
+import javafx.util.Duration;
+
+import java.time.LocalTime;
+
 public class TimeManager {
+    private final Label timeLabel;
+    private LocalTime gameTime;
+    private Timeline timeline;
 
-    // attribute
-    private static int currentHour ;
-    private static int currentMinute;
-    private boolean isOpen;
-
-    // configuration
-    private final int openHour = 12;
-    private final int closeHour = 21;
-
-    // constructor
-    public TimeManager() {
-        currentHour = openHour;
-        currentMinute = 0;
-        isOpen = true;
+    public TimeManager(Label timeLabel) {
+        this.timeLabel = timeLabel;
     }
 
-    // method
-    public void tick() 
-    {
-        currentMinute ++;
-        if (currentMinute >= 60) 
-        {
-            currentMinute = 0;
-            currentHour++;
-        }
-        System.out.println("Time: " + getTime());
-        setOpenClose();
-        
+    public void startAt(int hour, int minute) {
+        this.gameTime = LocalTime.of(hour, minute);
+        updateLabel();
     }
-    public boolean isOpen()
-    {
-        return isOpen;
+    public void runGameClockRealtime(double speedSecondsPerMinute) {
+        stop();
+        timeline = new Timeline(new KeyFrame(Duration.seconds(speedSecondsPerMinute), e -> {
+            gameTime = gameTime.plusMinutes(1);
+            updateLabel();
+            if (!gameTime.isBefore(LocalTime.of(21, 0))) {
+                stop();
+            }
+        }));
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
     }
-    private void setOpenClose()
-    {
-        if (currentHour >= closeHour)
-        {
-            isOpen = false;
-            System.out.println("The shop is now closed!");
-        }
+
+    public void stop() {
+        if (timeline != null) timeline.stop();
     }
-    public String getTime() 
-    {
-        return String.format("%02d:%02d", currentHour, currentMinute);
+
+    private void updateLabel() {
+        timeLabel.setText(String.format("🕒 %02d:%02d", gameTime.getHour(), gameTime.getMinute()));
     }
-    public void reset() 
-    {
-        currentHour = openHour;
-        currentMinute = 0;
-        isOpen = true;
+    public String getTime() {
+        return String.format("%02d:%02d", gameTime.getHour(), gameTime.getMinute());
     }
-    public int getCurrentMinute() 
-    {
-    return (currentHour - 12) * 60 + currentMinute;
-    }
-    public int getCurrentHour()
-    { 
-        return currentHour-12; 
+    public int getCurrentMinute() {
+        return (gameTime.getHour() - 12) * 60 + gameTime.getMinute();
     }
 }
-

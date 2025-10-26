@@ -1,13 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.heycream.manager;
 
-/**
- *
- * @author lenovo
- */
+
 import com.heycream.AbstractAndInterface.DessertItem;
 import com.heycream.model.Order;
 import java.util.List;
@@ -26,7 +20,7 @@ public class MoneyManager {
     public double calculateOrderPrice(Order order) 
     {
         double totalPrice = 0.0;
-        List<DessertItem> items = order.getAllItems();
+        List<DessertItem> items = order.getAllItem();
         for (DessertItem item : items) 
         {
             totalPrice += item.getPrice();

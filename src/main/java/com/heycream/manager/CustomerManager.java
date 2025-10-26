@@ -1,38 +1,65 @@
 package com.heycream.manager;
 
-import javafx.animation.FadeTransition;
+import com.heycream.actor.Customer;
+import java.util.Objects;
+import javafx.animation.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
 
 public class CustomerManager {
-    private AnchorPane rootPane;
+    private final AnchorPane rootPane;
     private ImageView currentCustomer;
 
     public CustomerManager(AnchorPane rootPane) {
         this.rootPane = rootPane;
     }
+    public ImageView getCurrentCustomerView() {
+    return currentCustomer;
+}
 
-    public void spawnCustomer(String name, Runnable onArrived) {
-        ImageView customer = new ImageView(
-            new Image(getClass().getResource("/com/heycream/assets/Customer" + name + ".png").toExternalForm())
-        );
-        customer.setLayoutX(120);
-        customer.setLayoutY(230);
-        customer.setOpacity(0);
-        customer.setFitHeight(180);
-        customer.setPreserveRatio(true);
+    public void spawnCustomer(Customer customer, Runnable onArrived) {
+    String name = customer.getName();
+    String path = "/com/heycream/assets/Customer" + name + ".png";
 
-        rootPane.getChildren().add(customer);
-        currentCustomer = customer;
+    ImageView img = new ImageView(
+        new Image(Objects.requireNonNull(getClass().getResource(path),
+        "Missing asset: " + path).toExternalForm())
+    );
+    img.setFitHeight(350);
+    img.setPreserveRatio(true);
+    img.setLayoutY(640);
 
-        FadeTransition fade = new FadeTransition(Duration.seconds(2), customer);
-        fade.setFromValue(0);
-        fade.setToValue(1);
-        fade.setOnFinished(e -> {
-            if (onArrived != null) onArrived.run();
+    double startX = (name.equals("Tiger") || name.equals("Elephant")) ? 1536 : -400;
+    double endX = 1100;
+
+    img.setLayoutX(startX);
+    rootPane.getChildren().add(img);
+    img.toBack();
+    currentCustomer = img;
+
+    TranslateTransition enter = new TranslateTransition(Duration.seconds(3), img);
+    enter.setFromX(0);
+    enter.setToX(endX - startX);
+    enter.setInterpolator(Interpolator.EASE_OUT);
+    enter.setOnFinished(e -> onArrived.run());
+    enter.play();
+}
+
+
+    public void leaveScene(Runnable onExit) {
+        if (currentCustomer == null) return;
+
+        double exitX = currentCustomer.getLayoutX() > 400 ? 900 : -200;
+        TranslateTransition exit = new TranslateTransition(Duration.seconds(2), currentCustomer);
+        exit.setToX(exitX - currentCustomer.getLayoutX());
+        exit.setInterpolator(Interpolator.EASE_IN);
+        exit.setOnFinished(e -> {
+            rootPane.getChildren().remove(currentCustomer);
+            currentCustomer = null;
+            onExit.run();
         });
-        fade.play();
+        exit.play();
     }
 }

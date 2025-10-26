@@ -3,6 +3,7 @@ package com.heycream.manager;
 import com.heycream.actor.Customer;
 import com.heycream.actor.Player;
 import java.util.*;
+import javafx.scene.control.Label;
 
 public class GameManager {
 
@@ -14,24 +15,14 @@ public class GameManager {
     private Customer currentCustomer;
     private boolean isRunning;
 
-    public GameManager() 
+    public GameManager(Label timeLabel) 
     {
         player = new Player();
         customers = new ArrayList<>();
-        orderManager = new OrderManager();
-        timeManager = new TimeManager();
+        timeManager = new TimeManager(timeLabel);
+        orderManager = new OrderManager(timeManager);
         moneyManager = new MoneyManager();
         isRunning = true;
-    }
-    
-    public Customer spawnCustomer() 
-    {
-        int id = customers.size() + 1;
-        Customer c = orderManager.generateOrder(id);
-        customers.add(c);
-        currentCustomer = c;
-        c.setArrivalMinute(timeManager.getCurrentMinute());
-        return c;
     }
     public String serveCurrentCustomer() 
     {
@@ -62,10 +53,6 @@ public class GameManager {
             message = currentCustomer.getName() + " didn't like it! (-50%)";
         }
         return message + "\nTotal: " + moneyManager.getTotal();
-    }
-    public void tickTime() 
-    {
-        timeManager.tick();
     }
     public String endGameSummary() 
     {
