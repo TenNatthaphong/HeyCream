@@ -8,6 +8,7 @@ import com.heycream.manager.InteractionManager;
 import com.heycream.manager.ItemManager;
 import com.heycream.manager.OrderManager;
 import com.heycream.manager.TimeManager;
+import com.heycream.manager.UIManager;
 import com.heycream.utils.Randomizer;
 import com.heycream.model.Order;
 import javafx.fxml.FXML;
@@ -17,6 +18,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 
 import java.util.Objects;
+import java.util.*;
 
 public class GameSceneController {
 
@@ -25,13 +27,16 @@ public class GameSceneController {
     @FXML private Label timeLabel;
     @FXML private Label coinLabel;
 
+    private UIManager uiManager;
     private CustomerManager customerManager;
     private TimeManager timeManager;
     private ItemManager itemManager;
     private OrderManager orderManager;
     private InteractionManager interactionManager;
     private ImageView heldItem = null; // currently held item
-    private String heldKey = null;      
+    private String heldKey = null;
+    
+private final Set<String> placedItems = new HashSet<>();
 
     @FXML
     public void initialize() {
@@ -45,7 +50,7 @@ public class GameSceneController {
         foodTruck.setLayoutX(0);  
         foodTruck.setLayoutY(0);
         foodTruck.toBack();
-        customerManager = new CustomerManager(rootPane);
+        customerManager = new CustomerManager(rootPane,uiManager);
         timeManager = new TimeManager(timeLabel);
         itemManager = new ItemManager(rootPane);
         timeManager.startAt(12, 0);
@@ -93,66 +98,75 @@ public class GameSceneController {
     // TODO: Later - check order completeness, play sound, remove order from counter
     }
     private void setupItemInteractions() {
-        rootPane.setOnMouseClicked(e -> {
-            double x = e.getX();
-            double y = e.getY();
-            if (heldItem != null) {
-                // allow placing only in ServeZone (cashier area)
-                if (itemManager.isInServeZone(x, y)) {
-                    System.out.println("✅ Placed " + heldKey + " in ServeZone.");
-                    heldItem.setLayoutX(x - heldItem.getFitWidth() / 2);
-                    heldItem.setLayoutY(y - heldItem.getFitHeight() / 2);
-                    heldItem = null;
-                    heldKey = null;
-                } else {
-                    // if click outside ServeZone, do nothing (still holding)
-                    System.out.println("❌ Cannot place outside ServeZone.");
-                }
-                return;
-            }
-            String detected = itemManager.detectItemByPosition(x, y);
-            if (detected == null) return; // clicked empty space
+    rootPane.setOnMouseClicked(e -> {
+        double x = e.getX();
+        double y = e.getY();
 
-            // Handle scoop logic (special rule)
-            if (detected.startsWith("ScoopWhen")) {
-                if (heldKey != null && heldKey.equals("Scoop")) {
-                    // scoop held -> allow flavor change
-                    System.out.println("🍨 Scoop changed to " + detected);
-                    heldKey = detected;
-                    if (heldItem != null) rootPane.getChildren().remove(heldItem);
-                    heldItem = itemManager.showItem(detected);
-                    return;
-                } else {
-                    // not holding scoop, cannot take flavored scoop
-                    System.out.println("⚠ Cannot take flavored scoop without holding Scoop.");
-                    return;
-                }
+        if (heldItem != null) {
+            if (itemManager.isInServeZone(x, y)) {
+                System.out.println("✅ Placed " + heldKey + " in ServeZone.");
+                heldItem.setLayoutX(x - heldItem.getFitWidth() / 2);
+                heldItem.setLayoutY(y - heldItem.getFitHeight() / 2);
+                placedItems.add(heldKey); // mark this item as placed
+                heldItem = null;
+                heldKey = null;
+            } else {
+                System.out.println("❌ Cannot place outside ServeZone.");
             }
+            return;
+        }
 
-            // If click Scoop area (washing scoop)
-            if (detected.equals("Scoop")) {
-                System.out.println("🧺 Picked up clean scoop.");
-                heldKey = "Scoop";
+        // 2️⃣ Detect clicked item
+        String detected = itemManager.detectItemByPosition(x, y);
+        if (detected == null) return;
+
+        // 3️⃣ Skip items that have already been placed
+        if (placedItems.contains(detected)) {
+            System.out.println("⚠ " + detected + " already placed — cannot pick again.");
+            return;
+        }
+
+        // 4️⃣ Handle scoop logic
+        if (detected.startsWith("ScoopWhen")) {
+            if ("Scoop".equals(heldKey)) {
+                System.out.println("🍨 Scoop changed to " + detected);
+                heldKey = detected;
                 if (heldItem != null) rootPane.getChildren().remove(heldItem);
-                heldItem = itemManager.showItem("Scoop");
+                heldItem = itemManager.showItem(detected);
                 bindHeldItemToMouse();
-                return;
+            } else {
+                System.out.println("⚠ Cannot take flavored scoop without holding Scoop.");
             }
-            System.out.println("🖐 Holding new item: " + detected);
-            heldKey = detected;
+            return;
+        }
+
+        // 5️⃣ Handle scoop (wash station)
+        if (detected.equals("Scoop")) {
+            System.out.println("🧺 Picked up clean scoop.");
+            heldKey = "Scoop";
             if (heldItem != null) rootPane.getChildren().remove(heldItem);
-            heldItem = itemManager.showItem(detected);
+            heldItem = itemManager.showItem("Scoop");
             bindHeldItemToMouse();
-        });
-    }
-    private void bindHeldItemToMouse() {
-        rootPane.setOnMouseMoved(m -> {
-            if (heldItem != null) {
-                heldItem.setLayoutX(m.getX() - heldItem.getFitWidth() / 2);
-                heldItem.setLayoutY(m.getY() - heldItem.getFitHeight() / 2);
-            }
-        });
-    }
+            return;
+        }
+
+        // 6️⃣ Pick up other new items
+        System.out.println("🖐 Holding new item: " + detected);
+        heldKey = detected;
+        if (heldItem != null) rootPane.getChildren().remove(heldItem);
+        heldItem = itemManager.showItem(detected);
+        bindHeldItemToMouse();
+    });
+}
+
+private void bindHeldItemToMouse() {
+    rootPane.setOnMouseMoved(m -> {
+        if (heldItem != null) {
+            heldItem.setLayoutX(m.getX() - heldItem.getFitWidth() / 2);
+            heldItem.setLayoutY(m.getY() - heldItem.getFitHeight() / 2);
+        }
+    });
+}
     private void forceZOrder() {
         if (customerManager.getCurrentCustomerView() != null) {
             customerManager.getCurrentCustomerView().toBack();

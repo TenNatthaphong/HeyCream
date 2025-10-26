@@ -1,83 +1,74 @@
 package com.heycream.model;
 
-import com.heycream.AbstractAndInterface.DessertItem;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class Order {
-    private Cup requestedCup;
-    private List<IceCream> scoops;
-    private Topping topping;
-    private Sauce sauce;
+    private final Cup requestedCup;
+    private final List<IceCream> requestedScoops;
+    private final Topping requestedTopping;
+    private final Sauce requestedSauce;
 
-
-
-    public Order(Cup cup) {
-        this.requestedCup = cup;
-        this.scoops = new ArrayList<>();
+    public Order(Cup requestedCup, List<IceCream> scoops, Topping topping, Sauce sauce) {
+        this.requestedCup = requestedCup;
+        this.requestedScoops = scoops;
+        this.requestedTopping = topping;
+        this.requestedSauce = sauce;
     }
 
+    // ----- Accessors -----
     public Cup getRequestedCup() { return requestedCup; }
-    public List<IceCream> getScoops() { return scoops; }
+    public List<IceCream> getRequestedScoops() { return requestedScoops; }
+    public Topping getRequestedTopping() { return requestedTopping; }
+    public Sauce getRequestedSauce() { return requestedSauce; }
 
-    public void addIceCream(IceCream scoop) { scoops.add(scoop); }
-
-    public Topping getTopping() { return topping; }
-    public void setTopping(Topping topping) { this.topping = topping; }
-
-    public Sauce getSauce() { return sauce; }
-    public void setSauce(Sauce sauce) { this.sauce = sauce; }
-    public List<DessertItem> getAllItem() {
-        List<DessertItem> items = new ArrayList<>();
-        items.addAll(scoops);
-        if (topping != null) items.add(topping);
-        if (sauce != null) items.add(sauce);
-        return items;
-    }
-
-    public double getTotalPrice() {
-        double total = 0;
-        total += (requestedCup.getType() == CupType.Cone) ? 10 : 15;
-        total += scoops.size() * scoops.get(0).getPrice();
-        if (topping != null) total += topping.getPrice();
-        if (sauce != null) total += sauce.getPrice();
-        return total;
-    }
-
+    // ----- Matching -----
     public boolean checkMatch(Cup actualCup) {
-        if (actualCup == null || requestedCup == null) return false;
+        if (actualCup == null) return false;
 
-        boolean cupMatch = requestedCup.getType() == actualCup.getType()
-                && requestedCup.getSize() == actualCup.getSize();
+        boolean sameCup = requestedCup.matches(actualCup);
 
-        boolean scoopMatch = Objects.equals(
-            requestedCup.getScoops().stream().map(IceCream::getFlavor).toList(),
-            actualCup.getScoops().stream().map(IceCream::getFlavor).toList()
-        );
+        boolean sameScoops = requestedScoops.size() == actualCup.getScoops().size()
+                && requestedScoops.stream().map(IceCream::getFlavor).sorted().toList()
+                   .equals(actualCup.getScoops().stream().map(IceCream::getFlavor).sorted().toList());
 
-        boolean toppingMatch = Objects.equals(
-            (topping != null ? topping.getName() : null),
-            (actualCup.getToppings().isEmpty() ? null : actualCup.getToppings().get(0).getName())
-        );
+        boolean sameTopping = (requestedTopping == null && actualCup.getTopping() == null) ||
+                (requestedTopping != null && actualCup.getTopping() != null &&
+                 requestedTopping.getName().equals(actualCup.getTopping().getName()));
 
-        boolean sauceMatch = Objects.equals(
-            (sauce != null ? sauce.getName() : null),
-            (actualCup.getSauce() != null ? actualCup.getSauce().getName() : null)
-        );
+        boolean sameSauce = (requestedSauce == null && actualCup.getSauce() == null) ||
+                (requestedSauce != null && actualCup.getSauce() != null &&
+                 requestedSauce.getName().equals(actualCup.getSauce().getName()));
 
-        return cupMatch && scoopMatch && toppingMatch && sauceMatch;
+        return sameCup && sameScoops && sameTopping && sameSauce;
     }
 
-    public String describe() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(requestedCup.toString()).append(" with ");
-        for (int i = 0; i < scoops.size(); i++) {
-            sb.append(scoops.get(i).getFlavor());
-            if (i < scoops.size() - 1) sb.append(", ");
+    // ----- Order description -----
+    public String description() {
+        StringBuilder sb = new StringBuilder("I’d like a ");
+
+        String cupType = requestedCup.typeToString();
+        if (!cupType.equals("Cone")) {
+            sb.append(requestedCup.sizeToString().toLowerCase())
+              .append(" ")
+              .append(cupType.toLowerCase());
+        } else {
+            sb.append("cone");
         }
-        if (topping != null) sb.append(", topped with ").append(topping.getName());
-        if (sauce != null) sb.append(", drizzled ").append(sauce.getName());
+
+        sb.append(" with ");
+        for (int i = 0; i < requestedScoops.size(); i++) {
+            sb.append(requestedScoops.get(i).getFlavor());
+            if (i < requestedScoops.size() - 1) sb.append(", ");
+        }
+
+        if (requestedTopping != null) {
+            sb.append(", topped with ").append(requestedTopping.getName());
+        }
+        if (requestedSauce != null) {
+            sb.append(", and drizzled with ").append(requestedSauce.getName()).append(" sauce");
+        }
+
+        sb.append("!");
         return sb.toString();
     }
 }

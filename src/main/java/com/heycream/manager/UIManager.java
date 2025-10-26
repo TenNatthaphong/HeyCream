@@ -43,27 +43,6 @@ public class UIManager {
         rootPane.getChildren().add(popup);
     }
 
-    public void showOrderAdded() {
-        orderCount++;
-        orderCountText.setText("Order: " + orderCount);
-
-        Text plusOne = new Text("+1");
-        plusOne.setStyle("-fx-font-size: 20px; -fx-fill: #ff8800;");
-        plusOne.setLayoutX(orderCountText.getLayoutX() + 50);
-        plusOne.setLayoutY(orderCountText.getLayoutY() - 10);
-
-        rootPane.getChildren().add(plusOne);
-
-        TranslateTransition tt = new TranslateTransition(Duration.seconds(1), plusOne);
-        tt.setByY(-20);
-        FadeTransition ft = new FadeTransition(Duration.seconds(1), plusOne);
-        ft.setFromValue(1);
-        ft.setToValue(0);
-        tt.setOnFinished(e -> rootPane.getChildren().remove(plusOne));
-        tt.play();
-        ft.play();
-    }
-
     public void showCoinGain(int amount) {
         Text gainText = new Text("+" + amount + "💰");
         gainText.setStyle("-fx-font-size: 22px; -fx-fill: #00cc66; -fx-font-weight: bold;");

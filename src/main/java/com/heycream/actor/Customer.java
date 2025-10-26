@@ -42,6 +42,33 @@ public class Customer {
     {
         this.order = newOrder;
     }
+    
+    public String formatOrderSpeech() {
+        StringBuilder sb = new StringBuilder("I’d like a ");
+
+        String cupType = order.getRequestedCup().typeToString();
+        if (!cupType.equals("Cone")) {
+            sb.append(order.getRequestedCup().sizeToString().toLowerCase())
+              .append(" ")
+              .append(cupType.toLowerCase());
+        } else {
+            sb.append("cone");
+        }
+
+        sb.append(" with ");
+        sb.append(String.join(", ", order.getFlavors()));
+
+        if (order.getTopping() != null && !order.getTopping().isEmpty()) {
+            sb.append(", topped with ").append(order.getTopping());
+        }
+        if (order.getSauce() != null && !order.getSauce().isEmpty()) {
+            sb.append(", and drizzled with ").append(order.getSauce()).append(" sauce");
+        }
+
+        sb.append("!");
+        return sb.toString();
+    }
+
     public void reactToOrder(boolean isCorrect)
     {
         satisfied = isCorrect;

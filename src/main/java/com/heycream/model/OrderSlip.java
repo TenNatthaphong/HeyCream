@@ -29,7 +29,7 @@ public class OrderSlip {
 
         System.out.println("-----------------");
         System.out.printf("Total: %.2f\n", moneyManager.calculateOrderPrice(currentOrder));
-        System.out.println(currentOrder.describe());
+        System.out.println(currentOrder.description());
         System.out.println("-------------------------");
     }
     public void setOrder(Order order) { this.currentOrder = order; }

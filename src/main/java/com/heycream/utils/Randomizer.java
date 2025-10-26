@@ -22,6 +22,7 @@ public class Randomizer {
             return new VIPCustomer(); 
         }
     }
+    
     public static Order randomOrder() {
         Cup cup = randomCup();
         Order order = new Order(cup);

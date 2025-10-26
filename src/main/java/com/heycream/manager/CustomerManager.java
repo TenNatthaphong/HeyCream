@@ -1,6 +1,7 @@
 package com.heycream.manager;
 
 import com.heycream.actor.Customer;
+import com.heycream.utils.Randomizer;
 import java.util.Objects;
 import javafx.animation.*;
 import javafx.scene.image.Image;
@@ -10,11 +11,14 @@ import javafx.util.Duration;
 
 public class CustomerManager {
     private final AnchorPane rootPane;
+    private final UIManager uiManager;
     private ImageView currentCustomer;
 
-    public CustomerManager(AnchorPane rootPane) {
+    public CustomerManager(AnchorPane rootPane, UIManager uiManager) {
         this.rootPane = rootPane;
+        this.uiManager = uiManager;
     }
+
     public ImageView getCurrentCustomerView() {
     return currentCustomer;
 }
@@ -44,6 +48,10 @@ public class CustomerManager {
     enter.setToX(endX - startX);
     enter.setInterpolator(Interpolator.EASE_OUT);
     enter.setOnFinished(e -> onArrived.run());
+    String msg = Randomizer.randomOrderMessage();
+    uiManager.showSpeechBubble(msg, () -> {
+        System.out.println("🗨️ Customer ready to be served.");
+    });
     enter.play();
 }
 
