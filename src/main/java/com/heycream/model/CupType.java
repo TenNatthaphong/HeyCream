@@ -1,20 +1,3 @@
-
 package com.heycream.model;
 
-public enum CupType {
-    Cone("Cone"),Cup("Cup");
-    
-    private final String label;
-    CupType(String label) {
-        this.label = label;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    @Override
-    public String toString() {
-        return label;
-    }
-}
+public enum CupType { CUP, CONE; }

@@ -1,6 +1,7 @@
 package com.heycream.model;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Order {
     private final Cup requestedCup;
@@ -10,26 +11,24 @@ public class Order {
 
     public Order(Cup requestedCup, List<IceCream> scoops, Topping topping, Sauce sauce) {
         this.requestedCup = requestedCup;
-        this.requestedScoops = scoops;
+        this.requestedScoops = new ArrayList<>(scoops != null ? scoops : Collections.emptyList());
         this.requestedTopping = topping;
         this.requestedSauce = sauce;
     }
 
-    // ----- Accessors -----
     public Cup getRequestedCup() { return requestedCup; }
-    public List<IceCream> getRequestedScoops() { return requestedScoops; }
+    public List<IceCream> getRequestedScoops() { return Collections.unmodifiableList(requestedScoops); }
     public Topping getRequestedTopping() { return requestedTopping; }
     public Sauce getRequestedSauce() { return requestedSauce; }
 
-    // ----- Matching -----
     public boolean checkMatch(Cup actualCup) {
         if (actualCup == null) return false;
 
         boolean sameCup = requestedCup.matches(actualCup);
 
-        boolean sameScoops = requestedScoops.size() == actualCup.getScoops().size()
-                && requestedScoops.stream().map(IceCream::getFlavor).sorted().toList()
-                   .equals(actualCup.getScoops().stream().map(IceCream::getFlavor).sorted().toList());
+        var expected = requestedScoops.stream().map(IceCream::getFlavor).sorted().collect(Collectors.toList());
+        var actual   = actualCup.getScoops().stream().map(IceCream::getFlavor).sorted().collect(Collectors.toList());
+        boolean sameScoops = expected.equals(actual);
 
         boolean sameTopping = (requestedTopping == null && actualCup.getTopping() == null) ||
                 (requestedTopping != null && actualCup.getTopping() != null &&
@@ -42,12 +41,11 @@ public class Order {
         return sameCup && sameScoops && sameTopping && sameSauce;
     }
 
-    // ----- Order description -----
-    public String description() {
+    public String describe() {
         StringBuilder sb = new StringBuilder("I’d like a ");
 
         String cupType = requestedCup.typeToString();
-        if (!cupType.equals("Cone")) {
+        if (!"CONE".equalsIgnoreCase(cupType)) {
             sb.append(requestedCup.sizeToString().toLowerCase())
               .append(" ")
               .append(cupType.toLowerCase());
@@ -67,7 +65,6 @@ public class Order {
         if (requestedSauce != null) {
             sb.append(", and drizzled with ").append(requestedSauce.getName()).append(" sauce");
         }
-
         sb.append("!");
         return sb.toString();
     }

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.control.Label?>
@@ -8,10 +7,9 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.heycream.gui.GameSceneController"
             prefWidth="900" prefHeight="600">
-    <ImageView fx:id="foodTruck" layoutX="720" layoutY="350" fitWidth="180" preserveRatio="true"/>
+    <ImageView fx:id="foodTruck" layoutX="0" layoutY="0" fitWidth="900" preserveRatio="true"/>
     <Label fx:id="timeLabel" layoutX="30" layoutY="30" text="🕒 12:00"
-           style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #003366;" />
-    <Label fx:id="coinLabel" layoutX="840" layoutY="30" text="💰 0"
-           style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #006600;" />
+           style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #003366;"/>
+    <Label fx:id="coinLabel" layoutX="800" layoutY="30" text="💰 0"
+           style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #006600;"/>
 </AnchorPane>
-

@@ -1,65 +1,45 @@
 package com.heycream.utils;
 
-import com.heycream.AbstractAndInterface.*;
 import com.heycream.model.*;
-import java.util.Random;
+import com.heycream.AbstractAndInterface.*;
+import com.heycream.actor.*;
+import java.util.*;
 
 public class Randomizer {
-    private static final Random rand = new Random();
+    private static final Random R = new Random();
 
     public static String randomName() {
-        String[] names = {"Tiger", "Elephant", "Pig", "Dog", "Cat"};
-        return names[rand.nextInt(names.length)];
+        String[] names = {"Tiger", "Elephant", "Pig", "Cat", "Dog"};
+        return names[R.nextInt(names.length)];
     }
 
     public static CustomerBehavior randomBehavior() {
-        double roll = rand.nextDouble();
-        if (roll < 0.6) {
-            return new CalmCustomer();    
-        } else if (roll < 0.85) {
-            return new RudeCustomer();   
-        } else {
-            return new VIPCustomer(); 
-        }
+        double roll = R.nextDouble();
+        if (roll < 0.6) return new CalmCustomer();
+        if (roll < 0.85) return new RudeCustomer();
+        return new VIPCustomer();
     }
-    
+
     public static Order randomOrder() {
-        Cup cup = randomCup();
-        Order order = new Order(cup);
+        CupType type = R.nextDouble() < 0.7 ? CupType.CUP : CupType.CONE;
+        CupSize size = type == CupType.CUP ? CupSize.values()[R.nextInt(CupSize.values().length)] : CupSize.M;
+        Cup base = new Cup(type, size);
 
-        int maxScoop = switch (cup.getSize()) {
-            case Small -> 1;
-            case Medium -> 2;
-            case Large -> 3;
-        };
+        int n = 1 + R.nextInt(3);
+        List<IceCream> scoops = new ArrayList<>();
+        for (int i = 0; i < n; i++) scoops.add(randomFlavor());
 
-        for (int i = 0; i < maxScoop; i++) {
-            order.addIceCream(randomFlavor());
-        }
+        Topping topping = R.nextDouble() < 0.6 ? new Topping(randomFrom("Cherrie","Oreo","Banana","Candy"), 10) : null;
+        Sauce sauce = R.nextDouble() < 0.5 ? new Sauce(randomFrom("Caramel","Chocolate","Strawberry","Honey"), 8) : null;
 
-        order.setTopping(randomTopping());
-        order.setSauce(randomSauce());
-        return order;
+        return new Order(base, scoops, topping, sauce);
     }
 
-    public static Cup randomCup() {
-        CupType type = rand.nextBoolean() ? CupType.Cone : CupType.Cup;
-        CupSize size = CupSize.values()[rand.nextInt(CupSize.values().length)];
-        return new Cup(type, size);
+    private static IceCream randomFlavor() {
+        String[] flavors = {"vanilla","strawberry","matcha","chocolate","blueberry"};
+        String f = flavors[R.nextInt(flavors.length)];
+        return new IceCream(f, 20);
     }
 
-    public static IceCream randomFlavor() {
-        String[] flavors = {"Vanilla", "Strawberry", "Chocolate", "Matcha", "Blueberry"};
-        return new IceCream(flavors[rand.nextInt(flavors.length)]);
-    }
-
-    public static Topping randomTopping() {
-        String[] toppings = {"Banana", "Cherrie", "Oreo", "Candy"};
-        return new Topping(toppings[rand.nextInt(toppings.length)]);
-    }
-
-    public static Sauce randomSauce() {
-        String[] sauces = {"Caramel", "Chocolate", "Strawberry", "Honey"};
-        return new Sauce(sauces[rand.nextInt(sauces.length)]);
-    }
+    private static String randomFrom(String... arr) { return arr[R.nextInt(arr.length)]; }
 }

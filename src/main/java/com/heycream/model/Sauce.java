@@ -1,24 +1,22 @@
-
 package com.heycream.model;
 
-import com.heycream.AbstractAndInterface.DessertItem;
+import com.heycream.AbstractAndInterface.*;
 
-public class Sauce extends DessertItem{
-    
-    //attribute
-    
-    //constructor
-    public Sauce(String name)
-    {
-        super(name);
-        this.price = 4.0;
+public class Sauce implements DessertItem {
+    private final String name;
+    private final int price;
+
+    public Sauce(String name, int price) {
+        this.name = name;
+        this.price = price;
     }
-    
-    //method
+
     @Override
-    public String getName(){ return name; }
+    public String getName() { return name; }
+
     @Override
-    public String getType(){ return "Sauce"; }
+    public int getPrice() { return price; }
+
     @Override
-    public double getPrice() { return price; }
+    public String toString() { return name; }
 }

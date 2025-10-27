@@ -1,16 +1,18 @@
 package com.heycream.manager;
 
+import com.heycream.actor.Customer;      // import เฉพาะที่ใช้จาก actor
+import com.heycream.model.Order;         // <— ดึง Order จาก model แบบเจาะจง
+import com.heycream.model.Cup;           // <— ถ้าไฟล์นี้ใช้ Cup ด้วย ดึงจาก model เช่นกัน
 import com.heycream.AbstractAndInterface.*;
-import com.heycream.model.*;
-import com.heycream.actor.Customer;
-import com.heycream.utils.Randomizer;
-import java.util.*;
+import com.heycream.utils.*;
 
 public class OrderManager {
     private final TimeManager timeManager;
+
     public OrderManager(TimeManager sharedTime) {
         this.timeManager = sharedTime;
     }
+
     public Order generateOrder() {
         return Randomizer.randomOrder();
     }
@@ -18,17 +20,11 @@ public class OrderManager {
     public Customer generateCustomer() {
         Order order = generateOrder();
         String name = Randomizer.randomName();
-        CustomerBehavior behavior;
-
-        double roll = Math.random();
-        if (roll < 0.6) behavior = new CalmCustomer();
-        else if (roll < 0.85) behavior = new RudeCustomer();
-        else behavior = new VIPCustomer();
-
+        CustomerBehavior behavior = Randomizer.randomBehavior();
         return new Customer(name, order, behavior, timeManager.getCurrentMinute());
     }
 
-    public boolean checkOrder(Cup playerCup, Customer c) {
-        return c.getOrder().checkMatch(playerCup);
+    public boolean isOrderCorrect(Cup playerCup, Customer customer) {
+        return customer.getOrder().checkMatch(playerCup);
     }
 }

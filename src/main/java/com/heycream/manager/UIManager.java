@@ -21,8 +21,8 @@ public class UIManager {
     public void showSpeechBubble(String text, Runnable onOk) {
         AnchorPane popup = new AnchorPane();
         popup.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-background-radius: 15; -fx-border-radius: 15;");
-        popup.setLayoutX(180);
-        popup.setLayoutY(120);
+        popup.setLayoutX(200);
+        popup.setLayoutY(170);
         popup.setPrefSize(250, 120);
 
         Label label = new Label(text);
