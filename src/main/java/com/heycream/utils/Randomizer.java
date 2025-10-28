@@ -65,7 +65,7 @@ public class Randomizer {
     }
 
     private static Topping randomTopping() {
-        String[] toppings = {"Cherry", "Oreo", "Banana", "Candy", "Peanut"};
+        String[] toppings = {"Cherrie", "Oreo", "Banana", "Candy",};
         String t = toppings[R.nextInt(toppings.length)];
         return new Topping(t, 10);
     }

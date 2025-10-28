@@ -28,4 +28,9 @@ public class OrderManager {
         if (required <= 0) return false;
         return prepared.getScoops() != null && prepared.getScoops().size() >= required;
     }
+    public boolean checkMatch(Cup servedCup, Order order) {
+    if (order == null || servedCup == null) return false;
+    return order.checkMatch(servedCup);
+}
+
 }

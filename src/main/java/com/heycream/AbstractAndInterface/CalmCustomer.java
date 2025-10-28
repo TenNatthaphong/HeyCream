@@ -11,5 +11,8 @@ public class CalmCustomer implements CustomerBehavior {
     @Override
     public int getPatienceSeconds() { return 8; }
 
-     @Override public String getText() { return "speaking softly and patiently"; }
+     @Override
+    public String getReactionPhrase(boolean correct) {
+        return correct ? "Thank you! It looks perfect!" : "Hmm… not quite right.";
+    }
 }

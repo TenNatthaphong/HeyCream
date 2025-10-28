@@ -14,5 +14,9 @@ public class RudeCustomer implements CustomerBehavior {
     @Override
     public int getPatienceSeconds() { return 3; }
 
-     @Override public String getText() { return "with a rude tone, clearly annoyed"; }
+     @Override
+public String getReactionPhrase(boolean correct) {
+    return correct ? "Finally, about time!" : "Ugh, this is terrible!";
+}
+
 }

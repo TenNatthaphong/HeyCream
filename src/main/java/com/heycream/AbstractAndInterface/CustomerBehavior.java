@@ -19,5 +19,5 @@ public interface CustomerBehavior {
     default int getPatienceSeconds() { return 6; }
 
     /** What they say when served. */
-    default String getReactionPhrase() { return "Thanks!"; }
+    public abstract String getReactionPhrase(boolean correct);
 }

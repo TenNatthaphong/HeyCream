@@ -17,7 +17,7 @@ public class Cup {
     private final CupSize size;
 
     // 👇 เพิ่มฟิลด์สำหรับเชื่อมกับภาพบนจอ
-    private transient ImageView imageView;
+    private ImageView imageView;
 
     public Cup(CupType type, CupSize size) {
         this.type = type;
@@ -46,6 +46,9 @@ public class Cup {
         return toppings;
     }
 
+    public void addScoop(IceCream i) {
+        if (i != null) scoops.add(i);
+    }
     public void addTopping(Topping t) {
         if (t != null) toppings.add(t);
     }

@@ -8,21 +8,34 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 
+/**
+ * Handles all in-game UI displays: speech bubbles, hints, toasts, and coin gain effects.
+ */
 public class UIManager {
-    private Pane uiPane;
-    private Text timeText;
-    private Text orderCountText;
-    private int orderCount = 0;
+    private final Pane uiPane;
+    private Label coinLabel;
 
     public UIManager(Pane uiPane) {
         this.uiPane = uiPane;
+    }
+
+    /** Optional: link external coin label (for dynamic updates). */
+    public void setCoinLabelNode(Label label) {
+        this.coinLabel = label;
+    }
+
+    /** Update coin label text safely. */
+    public void updateCoinLabel(int total) {
+        if (coinLabel != null) {
+            coinLabel.setText(String.format("%d 💰", total));
+        }
     }
 
     /** Show a fading text message at top-center. */
     public void toast(String message) {
         Text text = new Text(message);
         text.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-fill: white;");
-        text.setLayoutX(360); // adjust to your layout
+        text.setLayoutX(360);
         text.setLayoutY(100);
         uiPane.getChildren().add(text);
 
@@ -47,44 +60,52 @@ public class UIManager {
         fade.setOnFinished(e -> uiPane.getChildren().remove(text));
         fade.play();
     }
+
+    /** 💬 Display speech bubble with OK button */
     public void showSpeechBubble(String text, Runnable onOk) {
-    Pane popup = new Pane();
-    popup.getStyleClass().add("speech-bubble");
-    popup.setPrefSize(300, 130);
-    popup.setLayoutX(150);
-    popup.setLayoutY(130);
+        Pane popup = new Pane();
+        popup.getStyleClass().add("speech-bubble");
+        popup.setPrefSize(300, 130);
+        popup.setLayoutX(150);
+        popup.setLayoutY(130);
 
-    Label label = new Label(text);
-    label.getStyleClass().add("speech-text");
-    label.setWrapText(true);
-    label.setLayoutX(20);
-    label.setLayoutY(20);
-    label.setPrefWidth(270);
+        Label label = new Label(text);
+        label.getStyleClass().add("speech-text");
+        label.setWrapText(true);
+        label.setLayoutX(20);
+        label.setLayoutY(20);
+        label.setPrefWidth(270);
 
-    Button ok = new Button("OK");
-    ok.getStyleClass().add("speech-ok-btn");
-    ok.setLayoutX(245);
-    ok.setLayoutY(90);
-    ok.setOnAction(e -> {
-        uiPane.getChildren().remove(popup);
-        if (onOk != null) onOk.run();
-    });
+        Button ok = new Button("OK");
+        ok.getStyleClass().add("speech-ok-btn");
+        ok.setLayoutX(245);
+        ok.setLayoutY(90);
+        ok.setOnAction(e -> {
+            uiPane.getChildren().remove(popup);
+            if (onOk != null) onOk.run();
+        });
 
-    popup.getChildren().addAll(label, ok);
-    uiPane.getChildren().add(popup);
-}
+        popup.getChildren().addAll(label, ok);
+        uiPane.getChildren().add(popup);
+    }
 
+    /** 💰 Show floating coin gain text near cashier */
+    public void showCoinFloat(int amount) {
+        String prefix = amount >= 0 ? "+" : "";
+        String color = amount >= 0 ? "#00cc66" : "#ff3333";
 
-    public void showCoinGain(int amount) {
-        Text gainText = new Text("+" + amount + "💰");
-        gainText.setStyle("-fx-font-size: 22px; -fx-fill: #00cc66; -fx-font-weight: bold;");
+        Text gainText = new Text(prefix + amount + " 💰");
+        gainText.setStyle(String.format(
+            "-fx-font-size: 22px; -fx-fill: %s; -fx-font-weight: bold;", color
+        ));
         gainText.setLayoutX(760);
         gainText.setLayoutY(40);
         uiPane.getChildren().add(gainText);
 
-        TranslateTransition rise = new TranslateTransition(Duration.seconds(1.5), gainText);
+        // 🔹 Floating + fading animation
+        TranslateTransition rise = new TranslateTransition(Duration.seconds(1.2), gainText);
         rise.setByY(-40);
-        FadeTransition fade = new FadeTransition(Duration.seconds(1.5), gainText);
+        FadeTransition fade = new FadeTransition(Duration.seconds(1.2), gainText);
         fade.setFromValue(1.0);
         fade.setToValue(0.0);
         rise.setOnFinished(e -> uiPane.getChildren().remove(gainText));

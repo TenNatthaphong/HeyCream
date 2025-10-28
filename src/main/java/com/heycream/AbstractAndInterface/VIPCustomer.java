@@ -14,5 +14,9 @@ public class VIPCustomer implements CustomerBehavior {
     @Override
     public int getPatienceSeconds() { return 10; }
 
-    @Override public String getText() { return "in an elegant, confident manner"; }
+    @Override
+public String getReactionPhrase(boolean correct) {
+    return correct ? "Marvelous! You never disappoint!" : "Oh no… that’s not my order.";
+}
+
 }

@@ -51,7 +51,8 @@ public class Order {
     /**
      * Generate readable order text.
      */
-    public String describe(CustomerBehavior behavior) {
+    public String describe(com.heycream.AbstractAndInterface.CustomerBehavior behavior) 
+    {
         StringBuilder sb = new StringBuilder("I’d like a ");
 
         String cupType = requestedCup.typeToString();
@@ -69,7 +70,8 @@ public class Order {
             if (i < requestedScoops.size() - 1) sb.append(", ");
         }
 
-        if (!requestedToppings.isEmpty()) {
+        // ✅ รองรับหลาย toppings แล้ว
+        if (requestedToppings != null && !requestedToppings.isEmpty()) {
             sb.append(", topped with ");
             for (int i = 0; i < requestedToppings.size(); i++) {
                 sb.append(requestedToppings.get(i).getName());
@@ -80,13 +82,17 @@ public class Order {
         if (requestedSauce != null) {
             sb.append(", and drizzled with ").append(requestedSauce.getName()).append(" sauce");
         }
-
         sb.append("!");
 
         if (behavior != null) {
-            sb.append(" (").append(behavior.getText()).append(")");
+            String tone = behavior.isVIP()
+                    ? "speaking warmly (VIP)"
+                    : (behavior.isRude() ? "speaking curtly" : "speaking softly and patiently");
+            sb.append(" (").append(tone).append(")");
         }
 
         return sb.toString();
     }
+
+
 }
