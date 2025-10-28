@@ -1,26 +1,35 @@
 package com.heycream.model;
 
 /**
- * CupSize defines the size of a cup and its scoop limit.
- * S = 1 scoop, M = 2 scoops, L = 2 scoops (can be customized)
+ * CupSize defines the size of a cup and its scoop, topping, and sauce limits.
  */
 public enum CupSize {
-    S(1),
-    M(2),
-    L(2);
+    S(1, 1, 1),   // 1 scoop, ≤1 topping, ≤1 sauce
+    M(2, 2, 1),   // 2 scoops, ≤2 toppings, ≤1 sauce
+    L(3, 3, 1);   // 3 scoops, ≤3 toppings, ≤1 sauce
 
     private final int maxScoops;
+    private final int maxToppings;
+    private final int maxSauces;
 
-    CupSize(int maxScoops) {
+    CupSize(int maxScoops, int maxToppings, int maxSauces) {
         this.maxScoops = maxScoops;
+        this.maxToppings = maxToppings;
+        this.maxSauces = maxSauces;
     }
 
-    /** Return maximum allowed scoops for this size. */
     public int getMaxScoops() {
         return maxScoops;
     }
 
-    /** Return size name as a readable string. */
+    public int getMaxToppings() {
+        return maxToppings;
+    }
+
+    public int getMaxSauces() {
+        return maxSauces;
+    }
+
     public String sizeToString() {
         return switch (this) {
             case S -> "Small";

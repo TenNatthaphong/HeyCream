@@ -22,11 +22,6 @@ public class GameManager {
         this.customerManager = new CustomerManager(rootPane, uiManager);
     }
 
-    public void spawnNextCustomer() {
-        currentCustomer = orderManager.generateCustomer();
-        customerManager.spawnCustomer(currentCustomer, () -> {});
-    }
-
     public void resolveServe(Cup playerCup, Runnable onAfterLeave) {
         if (currentCustomer == null) return;
         boolean correct = orderManager.isOrderCorrect(playerCup, currentCustomer);

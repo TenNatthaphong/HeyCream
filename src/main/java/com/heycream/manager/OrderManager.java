@@ -9,12 +9,6 @@ import com.heycream.utils.Randomizer;
 public class OrderManager {
 
     public OrderManager() {}
-
-    /** Dummy customer generator (create placeholder). */
-    public Customer generateCustomer() {
-        return new Customer("Guest", new Order(null, null, null, null), null, 0);
-    }
-
     /** Simple equality check (can be customized later). */
     public boolean isOrderCorrect(Cup playerCup, Customer customer) {
         if (playerCup == null || customer == null) return false;

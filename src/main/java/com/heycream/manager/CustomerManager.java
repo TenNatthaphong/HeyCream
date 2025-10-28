@@ -10,6 +10,8 @@ public class CustomerManager {
     private final Pane customerLayer;
     private final UIManager uiManager;
     private ImageView currentCustomerView;
+    private Customer currentCustomer;
+
 
     public CustomerManager(Pane customerLayer, UIManager uiManager)
     {
@@ -21,6 +23,7 @@ public class CustomerManager {
 
     public void spawnCustomer(Customer customer, Runnable onArrived)
     {
+        this.currentCustomer = customer;
         String path = "/com/heycream/assets/Customer" + customer.getName() + ".png";
         Image image;
         try {
@@ -53,16 +56,24 @@ public class CustomerManager {
 
 
     public void leaveScene(Runnable onExit) {
-        if (currentCustomerView == null) { if (onExit != null) onExit.run(); return; }
-        double exitTo = 900;
-        TranslateTransition exit = new TranslateTransition(Duration.seconds(1.8), currentCustomerView);
-        exit.setToX(exitTo - currentCustomerView.getLayoutX());
-        exit.setInterpolator(Interpolator.EASE_IN);
-        exit.setOnFinished(e -> {
-            customerLayer.getChildren().remove(currentCustomerView);
-            currentCustomerView = null;
-            if (onExit != null) onExit.run();
-        });
-        exit.play();
+    if (currentCustomerView == null) {
+        if (onExit != null) onExit.run();
+        return;
     }
+
+    double exitTo = 900;
+    TranslateTransition exit = new TranslateTransition(Duration.seconds(1.8), currentCustomerView);
+    exit.setToX(exitTo - currentCustomerView.getLayoutX());
+    exit.setInterpolator(Interpolator.EASE_IN);
+    exit.setOnFinished(e -> {
+        customerLayer.getChildren().remove(currentCustomerView);
+        currentCustomerView = null;
+        currentCustomer = null; // ✅ clear current customer
+        if (onExit != null) onExit.run();
+    });
+    exit.play();
+}
+
+    public Customer getCurrentCustomer() { return currentCustomer; }
+
 }

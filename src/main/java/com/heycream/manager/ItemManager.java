@@ -1,66 +1,245 @@
 package com.heycream.manager;
 
-import javafx.scene.Node;
+import com.heycream.model.*;
+import javafx.animation.RotateTransition;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.util.Duration;
+import java.util.*;
 
-/**
- * ItemManager: now supports "spawn-at-prep" flow.
- * We keep exactly one prepared cup/cone (the active prepared item).
- */
 public class ItemManager {
 
-    private final Pane itemPane;
-    // Adjust these coordinates to match your ServeZone visually
-    private static final double PREP_X = 760; // near cashier
-    private static final double PREP_Y = 460;
+    private final Pane itemLayer;
+    private final Map<String, Image> itemImages = new HashMap<>();
+    private Cup currentCup;
+    private GameManager gameManager;
 
-    // Single prepared cup state (model), to be served later
-    private com.heycream.model.Cup preparedCup;
+    // 📍 ตำแหน่งเสิร์ฟ
+    private static final double SERVE_X = 740;
+    private static final double SERVE_Y = 510;
 
-    // Single prepared visual Node (optional - if you separate visuals and model)
-    private Node preparedVisual;
+    // 🔒 ป้องกันคลิกซ้ำใน 0.1 วินาที
+    private long lastScoopTime = 0;
 
-    public ItemManager(Pane itemPane) 
-    {
-        this.itemPane = itemPane;
+    public ItemManager(Pane itemLayer) {
+        this.itemLayer = itemLayer;
+        preloadItems();
     }
 
-    /** Lock an item Node at the prep position and disable dragging. */
-    public Node spawnAtPrep(Node item) {
-        if (item == null) return null;
-        item.setLayoutX(PREP_X);
-        item.setLayoutY(PREP_Y);
-        // Disable dragging to avoid oversized-drag issues
-        item.setOnMousePressed(null);
-        item.setOnMouseDragged(null);
-        item.setOnMouseReleased(null);
-        item.toFront();
-        this.preparedVisual = item;
-        return item;
+    public void setGameManager(GameManager gm) {
+        this.gameManager = gm;
     }
 
-    /** Replace the current prepared cup model (cup/cone). */
-    public void setPreparedCup(com.heycream.model.Cup cup) {
-        this.preparedCup = cup;
+    // =======================================================
+    // 🔹 โหลดภาพทั้งหมด
+    // =======================================================
+    private void preloadItems() {
+        addItem("Cone", "/com/heycream/assets/Cone.png");
+        addItem("CupS", "/com/heycream/assets/CupS.png");
+        addItem("CupM", "/com/heycream/assets/CupM.png");
+        addItem("CupL", "/com/heycream/assets/CupL.png");
+
+        addItem("ScoopVanilla", "/com/heycream/assets/ScoopVanilla.png");
+        addItem("ScoopStrawberry", "/com/heycream/assets/ScoopStrawberry.png");
+        addItem("ScoopMatcha", "/com/heycream/assets/ScoopMatcha.png");
+        addItem("ScoopChocolate", "/com/heycream/assets/ScoopChocolate.png");
+        addItem("ScoopBlueberry", "/com/heycream/assets/ScoopBlueberry.png");
+
+        addItem("SauceCaramel", "/com/heycream/assets/SauceCaramel.png");
+        addItem("SauceChocolate", "/com/heycream/assets/SauceChocolate.png");
+        addItem("SauceStrawberry", "/com/heycream/assets/SauceStrawberry.png");
+        addItem("SauceHoney", "/com/heycream/assets/SauceHoney.png");
+
+        addItem("ToppingBanana", "/com/heycream/assets/ToppingBanana.png");
+        addItem("ToppingOreo", "/com/heycream/assets/ToppingOreo.png");
+        addItem("ToppingCherrie", "/com/heycream/assets/ToppingCherrie.png");
+        addItem("ToppingCandy", "/com/heycream/assets/ToppingCandy.png");
     }
 
-    /** Retrieve the prepared cup model. */
-    public com.heycream.model.Cup getPreparedCup() {
-        return this.preparedCup;
-    }
-
-    /** Clear both prepared model and visual after serving. */
-    public void clearPrepared() {
-        this.preparedCup = null;
-        if (this.preparedVisual != null) {
-            // Optionally hide/remove from scene graph if you manage parents here.
-            this.preparedVisual.setVisible(false);
-            this.preparedVisual = null;
+    private void addItem(String name, String path) {
+        try {
+            itemImages.put(name, new Image(path));
+        } catch (Exception e) {
+            System.err.println("⚠ Failed to load: " + path);
         }
     }
 
-    /** Helper for bringing any node to front (if you still need it). */
-    public void bringToFront(Node n) {
-        if (n != null) n.toFront();
+    // =======================================================
+    // 🔹 ตรวจตำแหน่งคลิก
+    // =======================================================
+    public String detectItemByPosition(double x, double y) {
+        if (in(x, y, 84, 435, 20, 50)) return "SauceCaramel";
+        if (in(x, y, 118, 435, 20, 50)) return "SauceChocolate";
+        if (in(x, y, 151, 435, 20, 50)) return "SauceStrawberry";
+        if (in(x, y, 184, 435, 20, 50)) return "SauceHoney";
+
+        if (in(x, y, 67, 497, 20, 50)) return "Cone";
+        if (in(x, y, 100, 510, 20, 30)) return "CupS";
+        if (in(x, y, 133, 507, 30, 35)) return "CupM";
+        if (in(x, y, 167, 502, 30, 40)) return "CupL";
+
+        if (in(x, y, 236, 390, 50, 40)) return "ToppingBanana";
+        if (in(x, y, 306, 390, 50, 40)) return "ToppingOreo";
+        if (in(x, y, 236, 450, 50, 40)) return "ToppingCherrie";
+        if (in(x, y, 306, 450, 50, 40)) return "ToppingCandy";
+
+        if (in(x, y, 390, 450, 60, 75)) return "ScoopVanilla";
+        if (in(x, y, 470, 450, 40, 75)) return "ScoopStrawberry";
+        if (in(x, y, 530, 450, 40, 75)) return "ScoopMatcha";
+        if (in(x, y, 590, 450, 40, 75)) return "ScoopChocolate";
+        if (in(x, y, 650, 450, 40, 75)) return "ScoopBlueberry";
+
+        if (in(x, y, 780, 480, 40, 100)) return "ServeZone";
+        return null;
+    }
+
+    private boolean in(double x, double y, double bx, double by, double w, double h) {
+        return x >= bx && x <= bx + w && y >= by && y <= by + h;
+    }
+
+    // =======================================================
+    // 🔹 Cup
+    // =======================================================
+    public void spawnCup(String type) {
+        if (currentCup != null) {
+            System.out.println("⚠ Already have a cup.");
+            return;
+        }
+
+        CupType cupType = type.equals("Cone") ? CupType.CONE : CupType.CUP;
+        CupSize cupSize = sizeFromName(type);
+        currentCup = new Cup(cupType, cupSize);
+
+        ImageView view = new ImageView(itemImages.get(type));
+        view.setFitHeight(35);
+        view.setPreserveRatio(true);
+        view.setLayoutX(SERVE_X);
+        view.setLayoutY(SERVE_Y);
+        itemLayer.getChildren().add(view);
+        currentCup.setImageView(view);
+
+        System.out.println("🧁 Spawned cup: " + type);
+    }
+
+    private CupSize sizeFromName(String type) {
+        if (type.endsWith("S")) return CupSize.S;
+        if (type.endsWith("M")) return CupSize.M;
+        if (type.endsWith("L")) return CupSize.L;
+        return CupSize.M;
+    }
+
+    // =======================================================
+    // 🔹 Scoop (ลด X เพิ่ม Y และป้องกัน double-spawn)
+    // =======================================================
+    public void addScoopToCup(String scoopName) {
+        if (currentCup == null) {
+            System.out.println("❌ No cup selected!");
+            return;
+        }
+
+        int count = currentCup.getScoops().size();
+        int max = currentCup.getSize().getMaxScoops();
+        if (count >= max) {
+            System.out.println("⚠ Max scoops reached!");
+            return;
+        }
+
+        // 🔒 ป้องกัน double spawn ภายใน 0.1s
+        long now = System.currentTimeMillis();
+        if (now - lastScoopTime < 100) return;
+        lastScoopTime = now;
+
+        ImageView scoop = new ImageView(itemImages.get(scoopName));
+        scoop.setFitHeight(28);
+        scoop.setPreserveRatio(true);
+        scoop.setLayoutX(SERVE_X - 5);  // 🔻 ขยับซ้าย
+        scoop.setLayoutY(SERVE_Y - (20 * (count + 1)));  // 🔻 เพิ่ม Y ให้อยู่บนพอดี
+        itemLayer.getChildren().add(scoop);
+        scoop.toFront();
+
+        String flavor = scoopName.replace("Scoop", "");
+        currentCup.getScoops().add(new IceCream(flavor, 10));
+
+        System.out.println("🍨 Added scoop: " + flavor);
+    }
+
+    // =======================================================
+    // 🔹 Topping (เพิ่ม Y)
+    // =======================================================
+    public void addToppingToCup(String toppingName) {
+        if (currentCup == null || currentCup.getScoops().isEmpty()) {
+            System.out.println("⚠ Need cup + scoop first!");
+            return;
+        }
+
+        double offsetX = (Math.random() - 0.5) * 10;
+        double offsetY = 10 + (Math.random() * 8); // 🔻 เพิ่ม Y ต่ำลง
+
+        ImageView topping = new ImageView(itemImages.get(toppingName));
+        topping.setFitHeight(20);
+        topping.setPreserveRatio(true);
+        topping.setLayoutX(SERVE_X + 5 + offsetX);
+        topping.setLayoutY(SERVE_Y - (25 * currentCup.getScoops().size()) + offsetY);
+        itemLayer.getChildren().add(topping);
+        topping.toFront();
+
+        currentCup.addTopping(new Topping(toppingName.replace("Topping", ""), 5));
+        System.out.println("🍒 Added topping: " + toppingName);
+    }
+
+    // =======================================================
+    // 🔹 Sauce
+    // =======================================================
+    public void addSauceToCup(String sauceName) {
+        if (currentCup == null || currentCup.getScoops().isEmpty()) {
+            System.out.println("⚠ Need cup + scoop before sauce!");
+            return;
+        }
+
+        ImageView bottle = new ImageView(itemImages.get(sauceName));
+        bottle.setFitHeight(40);
+        bottle.setPreserveRatio(true);
+        bottle.setLayoutX(SERVE_X - 25);
+        bottle.setLayoutY(SERVE_Y - 100);
+        itemLayer.getChildren().add(bottle);
+
+        RotateTransition pour = new RotateTransition(Duration.seconds(0.4), bottle);
+        pour.setFromAngle(0);
+        pour.setToAngle(120);
+        pour.setAutoReverse(true);
+        pour.setCycleCount(2);
+        pour.setOnFinished(e -> itemLayer.getChildren().remove(bottle));
+        pour.play();
+
+        currentCup.setSauce(new Sauce(sauceName.replace("Sauce", ""), 8));
+        System.out.println("🍯 Added sauce: " + sauceName);
+    }
+
+    // =======================================================
+    // 🔹 Serve / Getter
+    // =======================================================
+    public void serveCurrentCup() {
+        if (currentCup == null) {
+            System.out.println("⚠ No cup to serve!");
+            return;
+        }
+
+        if (gameManager != null) {
+            gameManager.resolveServe(currentCup, () -> clearCurrentCup());
+        } else {
+            System.out.println("⚠ GameManager not linked.");
+        }
+    }
+
+    public Cup getCurrentCup() {
+        return currentCup;
+    }
+
+    public void clearCurrentCup() {
+        if (currentCup != null && currentCup.getImageView() != null) {
+            itemLayer.getChildren().remove(currentCup.getImageView());
+        }
+        currentCup = null;
     }
 }

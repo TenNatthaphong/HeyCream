@@ -48,29 +48,32 @@ public class UIManager {
         fade.play();
     }
     public void showSpeechBubble(String text, Runnable onOk) {
-        Pane popup = new Pane();
-        popup.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-background-radius: 15; -fx-border-radius: 15;");
-        popup.setLayoutX(200);
-        popup.setLayoutY(170);
-        popup.setPrefSize(250, 120);
+    Pane popup = new Pane();
+    popup.getStyleClass().add("speech-bubble");
+    popup.setPrefSize(300, 130);
+    popup.setLayoutX(150);
+    popup.setLayoutY(130);
 
-        Label label = new Label(text);
-        label.setWrapText(true);
-        label.setLayoutX(20);
-        label.setLayoutY(20);
-        label.setPrefWidth(210);
+    Label label = new Label(text);
+    label.getStyleClass().add("speech-text");
+    label.setWrapText(true);
+    label.setLayoutX(20);
+    label.setLayoutY(20);
+    label.setPrefWidth(270);
 
-        Button ok = new Button("OK");
-        ok.setLayoutX(100);
-        ok.setLayoutY(80);
-        ok.setOnAction(e -> {
-            uiPane.getChildren().remove(popup);
-            if (onOk != null) onOk.run();
-        });
+    Button ok = new Button("OK");
+    ok.getStyleClass().add("speech-ok-btn");
+    ok.setLayoutX(245);
+    ok.setLayoutY(90);
+    ok.setOnAction(e -> {
+        uiPane.getChildren().remove(popup);
+        if (onOk != null) onOk.run();
+    });
 
-        popup.getChildren().addAll(label, ok);
-        uiPane.getChildren().add(popup);
-    }
+    popup.getChildren().addAll(label, ok);
+    uiPane.getChildren().add(popup);
+}
+
 
     public void showCoinGain(int amount) {
         Text gainText = new Text("+" + amount + "💰");

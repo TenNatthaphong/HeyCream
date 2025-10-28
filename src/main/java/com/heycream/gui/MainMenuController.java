@@ -2,7 +2,6 @@ package com.heycream.gui;
 
 import com.heycream.gui.HasRootPane;
 import com.heycream.gui.SceneFactory;
-import com.heycream.manager.SoundManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -25,11 +24,6 @@ public class MainMenuController implements HasRootPane {
 
         exitButton.setOnAction(e -> Platform.exit());
 
-        muteButton.setOnAction(e -> {
-            SoundManager.toggleMute();
-            muteButton.setText(SoundManager.isMuted() ? "🔇" : "🔈");
-        });
-        muteButton.setText(SoundManager.isMuted() ? "🔇" : "🔈");
     }
 
     @Override

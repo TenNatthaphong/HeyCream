@@ -1,8 +1,7 @@
 package com.heycream.model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import javafx.scene.image.ImageView;
+import java.util.*;
 
 /**
  * Cup represents the ice cream container.
@@ -11,22 +10,34 @@ import java.util.Objects;
  */
 public class Cup {
 
-    private List<IceCream> scoops = new ArrayList<>();
-    private List<Topping> toppings = new ArrayList<>();
+    private final List<IceCream> scoops = new ArrayList<>();
+    private final List<Topping> toppings = new ArrayList<>();
     private Sauce sauce;
-    private Topping topping; // optional main topping (if you treat it separately)
-    private CupType type;
-    private CupSize size;
+    private final CupType type;
+    private final CupSize size;
+
+    // 👇 เพิ่มฟิลด์สำหรับเชื่อมกับภาพบนจอ
+    private transient ImageView imageView;
 
     public Cup(CupType type, CupSize size) {
         this.type = type;
         this.size = size;
     }
 
-    // =========================
-    // Getters & Setters
-    // =========================
+    // =====================================================
+    // 🔹 ImageView getter / setter (ใช้ใน ItemManager)
+    // =====================================================
+    public ImageView getImageView() {
+        return imageView;
+    }
 
+    public void setImageView(ImageView imageView) {
+        this.imageView = imageView;
+    }
+
+    // =====================================================
+    // 🔹 Scoops / Toppings / Sauce
+    // =====================================================
     public List<IceCream> getScoops() {
         return scoops;
     }
@@ -37,19 +48,6 @@ public class Cup {
 
     public void addTopping(Topping t) {
         if (t != null) toppings.add(t);
-    }
-
-    /** Optional single topping shortcut (if used by checkMatch) */
-    public Topping getTopping() {
-        // return the first topping or explicit field if you prefer single-topping logic
-        if (topping != null) return topping;
-        if (!toppings.isEmpty()) return toppings.get(0);
-        return null;
-    }
-
-    public void setTopping(Topping t) {
-        this.topping = t;
-        if (t != null && !toppings.contains(t)) toppings.add(t);
     }
 
     public Sauce getSauce() {
@@ -68,24 +66,20 @@ public class Cup {
         return size;
     }
 
-    /** Shortcut for readable cup type. */
+    // =====================================================
+    // 🔹 Readable text
+    // =====================================================
     public String typeToString() {
         return type != null ? type.typeToString() : "Unknown";
     }
 
-    /** Shortcut for readable cup size. */
     public String sizeToString() {
         return size != null ? size.sizeToString() : "Unknown";
     }
 
-    // =========================
-    // Matching logic
-    // =========================
-
-    /**
-     * Compare this cup with another cup to see if they are the same container type and size.
-     * Ignores scoops and toppings.
-     */
+    // =====================================================
+    // 🔹 Matching logic
+    // =====================================================
     public boolean matches(Cup other) {
         if (other == null) return false;
         return Objects.equals(this.type, other.type)

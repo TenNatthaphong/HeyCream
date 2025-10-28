@@ -3,27 +3,27 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
 
 <AnchorPane fx:id="rootPane"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.heycream.gui.GameSceneController"
             prefWidth="900" prefHeight="600">
 
-    <!-- พื้นหลัง -->
     <Pane fx:id="backgroundLayer" />
 
-    <!-- 👇 ลูกค้า (อยู่หลังรถ) -->
     <Pane fx:id="customerLayer" />
-
-    <!-- รถขายไอติม -->
     <Pane fx:id="truckLayer">
         <ImageView fx:id="foodTruck"
                    layoutX="0" layoutY="0"
                    fitWidth="900" preserveRatio="true" />
     </Pane>
-    <Pane fx:id="itemLayer" />
+    <Pane fx:id="itemLayer"
+      pickOnBounds="true"
+      mouseTransparent="false"
+      style="-fx-background-color: rgba(255,0,0,0.01);" />
 
-    <!-- UI -->
+    
     <Pane fx:id="uiLayer">
         <Label fx:id="timeLabel"
                layoutX="30" layoutY="30"
@@ -34,5 +34,4 @@
                text="💰 0"
                style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #006600;"/>
     </Pane>
-
 </AnchorPane>
