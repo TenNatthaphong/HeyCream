@@ -23,7 +23,7 @@ public class InteractionManager {
             if (clickLocked) return; // ป้องกัน spam คลิกเร็ว
             clickLocked = true;
             new Thread(() -> {
-                try { Thread.sleep(300); } catch (InterruptedException ignored) {}
+                try { Thread.sleep(120); } catch (InterruptedException ignored) {}
                 clickLocked = false;
             }).start();
 

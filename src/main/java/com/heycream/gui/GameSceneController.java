@@ -13,10 +13,6 @@ import javafx.scene.layout.Pane;
 import java.util.Random;
 import javafx.application.Platform;
 
-/**
- * GameSceneController - main gameplay logic for HeyCream.
- * Handles initialization, customer spawning, and item interactions.
- */
 public class GameSceneController {
 
     @FXML private AnchorPane rootPane;
@@ -36,6 +32,7 @@ public class GameSceneController {
     private CustomerManager customerManager;
     private InteractionManager interactionManager;
     private GameManager gameManager;
+    private MoneyManager moneyManager;
 
     private final Random random = new Random();
     private boolean isServing = false;
@@ -44,65 +41,46 @@ public class GameSceneController {
     // =======================================================
     // 🔹 INITIALIZE
     // =======================================================
-   @FXML
+@FXML
 public void initialize() {
-    // 1️⃣ Setup พื้นหลังและรถขายไอติม
     BackgroundBase.setupBase(backgroundLayer);
     FoodTruckLayer.setupTruck(truckLayer);
-
-    // 2️⃣ Initialize UI + CoinLabel
     uiManager = new UIManager(uiLayer);
-    uiManager.setCoinLabelNode(coinLabel); // เพิ่มเพื่อให้ UIManager อัปเดตเงินได้
-
-    // 3️⃣ Initialize Time
+    uiManager.setCoinLabelNode(coinLabel);
     timeManager = new TimeManager(timeLabel);
     timeManager.startAt(12, 0);
-    timeManager.runGameClockRealtime(0.75);
-
-    // 4️⃣ Initialize Managers หลัก
+    timeManager.runGameClockRealtime(0.5);
+    moneyManager = new MoneyManager();
     orderManager = new OrderManager();
     customerManager = new CustomerManager(customerLayer, uiManager);
-    gameManager = new GameManager(timeManager, uiManager, customerManager);
+    gameManager = new GameManager(timeManager, uiManager, customerManager, moneyManager, orderManager);
     gameManager.setController(this);
     itemManager = new ItemManager(itemLayer);
     itemManager.setGameManager(gameManager);
-
-    // 5️⃣ Interaction Manager (ระบบคลิก)
     interactionManager = new InteractionManager(itemManager, uiManager);
     interactionManager.attachToLayer(itemLayer);
-
-    // 6️⃣ ให้ itemLayer ปรับขนาดอัตโนมัติตาม rootPane
     itemLayer.prefWidthProperty().bind(rootPane.widthProperty());
     itemLayer.prefHeightProperty().bind(rootPane.heightProperty());
     itemLayer.setPickOnBounds(true);
     itemLayer.setMouseTransparent(false);
-
-    // 7️⃣ Debug: ตรวจคลิกและ log พิกัด
     Platform.runLater(() -> {
+        spawnCustomerSequence();
         itemLayer.setOnMouseClicked(e -> {
-            System.out.println("🖱 CLICK detected on itemLayer at X=" + e.getX() + ", Y=" + e.getY());
+            System.out.println("🖱 CLICK at X=" + e.getX() + ", Y=" + e.getY());
             String item = itemManager.detectItemByPosition(e.getX(), e.getY());
-            if (item != null) {
-                System.out.println("✅ Detected item: " + item);
-                handleItemClick(item);
-            } else {
-                System.out.println("❌ No item detected at that position");
-            }
+            if (item != null) handleItemClick(item);
         });
     });
-
-    // 8️⃣ Layer Order (ให้แน่ใจว่าทับถูก)
     backgroundLayer.toBack();
     customerLayer.toFront();
     truckLayer.toFront();
     itemLayer.toFront();
     uiLayer.toFront();
 
-    // 9️⃣ Spawn ลูกค้าคนแรก
-    spawnCustomerSequence();
-
     System.out.println("🎮 Game initialized successfully!");
 }
+
+
 
 
 
@@ -149,6 +127,7 @@ public void initialize() {
     // 🔹 Customer Management
     // =======================================================
     public void spawnCustomerSequence() {
+        
     if (isSpawningCustomer) {
         System.out.println("⚠️ Spawn blocked: already spawning a customer.");
         return;
@@ -186,14 +165,15 @@ public void initialize() {
         return;
     }
     boolean correct = orderManager.checkMatch(servedCup, customer.getOrder());
+    double patienceRatio = customerManager.getPatienceRatio();
     System.out.println("🍦 Served " + customer.getName() + " → Correct = " + correct);
     String reaction = customer.getBehavior().getReactionPhrase(correct);
     uiManager.showSpeechBubble(reaction, () -> {
-        int delta = gameManager.getMoneyManager().calculateReward(customer, correct);
+        int delta = gameManager.getMoneyManager().calculateReward(customer, servedCup, correct, patienceRatio);
         gameManager.getMoneyManager().addMoney(delta);
 
         uiManager.showCoinFloat(delta);
-
+        uiManager.updateCoinLabel(gameManager.getMoneyManager().getTotal());
         itemManager.clearAllPreparedVisuals();
 
         customerManager.leaveScene(() -> {

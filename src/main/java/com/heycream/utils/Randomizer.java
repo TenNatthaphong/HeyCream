@@ -75,8 +75,4 @@ public class Randomizer {
         String s = sauces[R.nextInt(sauces.length)];
         return new Sauce(s, 8);
     }
-
-    private static String randomFrom(String... arr) {
-        return arr[R.nextInt(arr.length)];
-    }
 }

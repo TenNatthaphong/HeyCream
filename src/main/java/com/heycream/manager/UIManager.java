@@ -14,6 +14,7 @@ import javafx.util.Duration;
 public class UIManager {
     private final Pane uiPane;
     private Label coinLabel;
+    private Pane activeBubble;
 
     public UIManager(Pane uiPane) {
         this.uiPane = uiPane;
@@ -49,12 +50,12 @@ public class UIManager {
     /** Flash small hint near bottom (shorter duration). */
     public void flashHint(String hint) {
         Text text = new Text(hint);
-        text.setStyle("-fx-font-size: 18px; -fx-fill: yellow;");
-        text.setLayoutX(300);
-        text.setLayoutY(560);
+        text.setStyle("-fx-font-size: 18px; -fx-fill: yellow -fx-font-weight: bold;;");
+        text.setLayoutX(375);
+        text.setLayoutY(150);
         uiPane.getChildren().add(text);
 
-        FadeTransition fade = new FadeTransition(Duration.seconds(1.5), text);
+        FadeTransition fade = new FadeTransition(Duration.seconds(2), text);
         fade.setFromValue(1.0);
         fade.setToValue(0.0);
         fade.setOnFinished(e -> uiPane.getChildren().remove(text));
@@ -63,6 +64,10 @@ public class UIManager {
 
     /** 💬 Display speech bubble with OK button */
     public void showSpeechBubble(String text, Runnable onOk) {
+        if (activeBubble != null) {
+        uiPane.getChildren().remove(activeBubble);
+        activeBubble = null;
+    }
         Pane popup = new Pane();
         popup.getStyleClass().add("speech-bubble");
         popup.setPrefSize(300, 130);
@@ -82,11 +87,12 @@ public class UIManager {
         ok.setLayoutY(90);
         ok.setOnAction(e -> {
             uiPane.getChildren().remove(popup);
+            activeBubble = null;
             if (onOk != null) onOk.run();
         });
-
         popup.getChildren().addAll(label, ok);
         uiPane.getChildren().add(popup);
+        activeBubble = popup;
     }
 
     /** 💰 Show floating coin gain text near cashier */
@@ -98,8 +104,8 @@ public class UIManager {
         gainText.setStyle(String.format(
             "-fx-font-size: 22px; -fx-fill: %s; -fx-font-weight: bold;", color
         ));
-        gainText.setLayoutX(760);
-        gainText.setLayoutY(40);
+        gainText.setLayoutX(700);
+        gainText.setLayoutY(400);
         uiPane.getChildren().add(gainText);
 
         // 🔹 Floating + fading animation
