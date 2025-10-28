@@ -39,11 +39,13 @@ public class GameSceneController {
     public void initialize() {
         BackgroundBase.setupBase(backgroundLayer);
         FoodTruckLayer.setupTruck(truckLayer);
-        customerManager = new CustomerManager(customerLayer, uiManager);
+        uiManager = new UIManager(uiLayer); 
+        itemManager = new ItemManager(itemLayer);
         orderManager = new OrderManager();
+        customerManager = new CustomerManager(customerLayer, uiManager);
         timeManager = new TimeManager(timeLabel);
         timeManager.startAt(12, 0);
-        timeManager.runGameClockRealtime(1.0);
+        timeManager.runGameClockRealtime(0.75);
         spawnCustomerSequence();
     }
 

@@ -1,6 +1,7 @@
 package com.heycream.manager;
 
 import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 
 /**
  * ItemManager: now supports "spawn-at-prep" flow.
@@ -8,6 +9,7 @@ import javafx.scene.Node;
  */
 public class ItemManager {
 
+    private final Pane itemPane;
     // Adjust these coordinates to match your ServeZone visually
     private static final double PREP_X = 760; // near cashier
     private static final double PREP_Y = 460;
@@ -18,7 +20,10 @@ public class ItemManager {
     // Single prepared visual Node (optional - if you separate visuals and model)
     private Node preparedVisual;
 
-    public ItemManager() {}
+    public ItemManager(Pane itemPane) 
+    {
+        this.itemPane = itemPane;
+    }
 
     /** Lock an item Node at the prep position and disable dragging. */
     public Node spawnAtPrep(Node item) {

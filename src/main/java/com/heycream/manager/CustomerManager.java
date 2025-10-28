@@ -44,8 +44,8 @@ public class CustomerManager {
         enter.setInterpolator(Interpolator.EASE_OUT);
 
         enter.setOnFinished(e -> {
+            System.out.println("✅ Customer arrived: " + customer.getName());
             if (onArrived != null) onArrived.run();
-            uiManager.showSpeechBubble(customer.getSpeech(), null);
         });
 
         enter.play();
