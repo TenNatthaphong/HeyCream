@@ -1,5 +1,6 @@
 package com.heycream.gui;
 
+import com.heycream.gui.HasRootPane;
 import com.heycream.gui.SceneFactory;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -8,7 +9,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
-public class MainMenuController {
+public class MainMenuController implements HasRootPane {
 
     @FXML private AnchorPane rootPane;
     @FXML private Button startButton;
@@ -25,5 +26,6 @@ public class MainMenuController {
 
     }
 
+    @Override
     public AnchorPane getRootPane() { return rootPane; }
 }
