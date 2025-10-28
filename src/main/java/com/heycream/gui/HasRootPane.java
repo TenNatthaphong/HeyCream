@@ -1,4 +1,4 @@
-package com.heycream.gui.util;
+package com.heycream.gui;
 
 import javafx.scene.layout.AnchorPane;
 

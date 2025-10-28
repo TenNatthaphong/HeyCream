@@ -1,88 +1,61 @@
 package com.heycream.manager;
 
-import javafx.scene.image.*;
-import javafx.scene.layout.AnchorPane;
-import java.util.*;
+import javafx.scene.Node;
 
+/**
+ * ItemManager: now supports "spawn-at-prep" flow.
+ * We keep exactly one prepared cup/cone (the active prepared item).
+ */
 public class ItemManager {
-    private final AnchorPane rootPane;
-    private final Map<String, ImageView> items = new HashMap<>();
 
-    public ItemManager(AnchorPane rootPane) {
-        this.rootPane = rootPane;
-        preloadItems();
-    }
+    // Adjust these coordinates to match your ServeZone visually
+    private static final double PREP_X = 760; // near cashier
+    private static final double PREP_Y = 460;
 
-    private void addItem(String key, String path) {
-        Image img;
-        try { img = new Image(path); } catch (Exception e) { img = null; }
-        ImageView iv = new ImageView(img);
-        iv.setVisible(false);
-        items.put(key, iv);
-    }
+    // Single prepared cup state (model), to be served later
+    private com.heycream.model.Cup preparedCup;
 
-    private void preloadItems() {
-        addItem("Cone", "/com/heycream/assets/Cone.png");
-        addItem("CupS", "/com/heycream/assets/CupS.png");
-        addItem("CupM", "/com/heycream/assets/CupM.png");
-        addItem("CupL", "/com/heycream/assets/CupL.png");
+    // Single prepared visual Node (optional - if you separate visuals and model)
+    private Node preparedVisual;
 
-        addItem("Scoop", "/com/heycream/assets/Scoop.png");
-        addItem("ScoopWhenVanilla", "/com/heycream/assets/ScoopWhenVanilla.png");
-        addItem("ScoopWhenStrawberry", "/com/heycream/assets/ScoopWhenStrawberry.png");
-        addItem("ScoopWhenMatcha", "/com/heycream/assets/ScoopWhenMatcha.png");
-        addItem("ScoopWhenChocolate", "/com/heycream/assets/ScoopWhenChocolate.png");
-        addItem("ScoopWhenBlueberry", "/com/heycream/assets/ScoopWhenBlueberry.png");
+    public ItemManager() {}
 
-        addItem("SauceCaramel", "/com/heycream/assets/SauceCaramel.png");
-        addItem("SauceChocolate", "/com/heycream/assets/SauceChocolate.png");
-        addItem("SauceStrawberry", "/com/heycream/assets/SauceStrawberry.png");
-        addItem("SauceHoney", "/com/heycream/assets/SauceHoney.png");
-
-        addItem("Banana", "/com/heycream/assets/Banana.png");
-        addItem("Oreo", "/com/heycream/assets/Oreo.png");
-        addItem("Cherrie", "/com/heycream/assets/Cherrie.png");
-        addItem("Candy", "/com/heycream/assets/Candy.png");
-    }
-
-    public ImageView showItem(String key) {
-        ImageView item = items.get(key);
-        if (item != null) {
-            if (!rootPane.getChildren().contains(item)) rootPane.getChildren().add(item);
-            item.setVisible(true);
-            item.toFront();
-        }
+    /** Lock an item Node at the prep position and disable dragging. */
+    public Node spawnAtPrep(Node item) {
+        if (item == null) return null;
+        item.setLayoutX(PREP_X);
+        item.setLayoutY(PREP_Y);
+        // Disable dragging to avoid oversized-drag issues
+        item.setOnMousePressed(null);
+        item.setOnMouseDragged(null);
+        item.setOnMouseReleased(null);
+        item.toFront();
+        this.preparedVisual = item;
         return item;
     }
 
-    private boolean in(double x, double y, double zoneX, double zoneY, double w, double h) {
-        return x >= zoneX && x <= zoneX + w && y >= zoneY && y <= zoneY + h;
+    /** Replace the current prepared cup model (cup/cone). */
+    public void setPreparedCup(com.heycream.model.Cup cup) {
+        this.preparedCup = cup;
     }
 
-    public boolean isInCupZone(double x, double y) { return in(x, y, 770, 540, 100, 45); }
-    public boolean isInStackZone(double x, double y) { return in(x, y, 770, 470, 100, 80); }
-    public boolean isInServeZone(double x, double y) { return in(x, y, 770, 400, 100, 160); }
+    /** Retrieve the prepared cup model. */
+    public com.heycream.model.Cup getPreparedCup() {
+        return this.preparedCup;
+    }
 
-    public String detectItemByPosition(double x, double y) {
-        if (in(x, y, 84, 435, 20, 50)) return "SauceCaramel";
-        if (in(x, y, 118, 435, 20, 50)) return "SauceChocolate";
-        if (in(x, y, 151, 435, 20, 50)) return "SauceStrawberry";
-        if (in(x, y, 184, 435, 20, 50)) return "SauceHoney";
-        if (in(x, y, 67, 497, 20, 50)) return "Cone";
-        if (in(x, y, 100, 510, 20, 30)) return "CupS";
-        if (in(x, y, 133, 507, 30, 35)) return "CupM";
-        if (in(x, y, 167, 502, 30, 40)) return "CupL";
-        if (in(x, y, 236, 390, 50, 40)) return "Banana";
-        if (in(x, y, 306, 390, 50, 40)) return "Oreo";
-        if (in(x, y, 236, 450, 50, 40)) return "Cherrie";
-        if (in(x, y, 306, 450, 50, 40)) return "Candy";
-        if (in(x, y, 236, 510, 45, 20)) return "Scoop";
-        if (in(x, y, 390, 450, 60, 75)) return "ScoopWhenVanilla";
-        if (in(x, y, 470, 450, 40, 75)) return "ScoopWhenStrawberry";
-        if (in(x, y, 530, 450, 40, 75)) return "ScoopWhenMatcha";
-        if (in(x, y, 590, 450, 40, 75)) return "ScoopWhenChocolate";
-        if (in(x, y, 650, 450, 40, 75)) return "ScoopWhenBlueberry";
-        if (in(x, y, 780, 480, 40, 100)) return "ServeZone";
-        return null;
+    /** Clear both prepared model and visual after serving. */
+    public void clearPrepared() {
+        this.preparedCup = null;
+        if (this.preparedVisual != null) {
+            // Optionally hide/remove from scene graph if you manage parents here.
+            this.preparedVisual.setVisible(false);
+            this.preparedVisual = null;
+        }
+    }
+
+    /** Helper for bringing any node to front (if you still need it). */
+    public void bringToFront(Node n) {
+        if (n != null) n.toFront();
     }
 }

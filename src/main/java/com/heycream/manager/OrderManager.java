@@ -1,30 +1,37 @@
 package com.heycream.manager;
 
-import com.heycream.actor.Customer;      // import เฉพาะที่ใช้จาก actor
-import com.heycream.model.Order;         // <— ดึง Order จาก model แบบเจาะจง
-import com.heycream.model.Cup;           // <— ถ้าไฟล์นี้ใช้ Cup ด้วย ดึงจาก model เช่นกัน
-import com.heycream.AbstractAndInterface.*;
-import com.heycream.utils.*;
+import com.heycream.actor.Customer;
+import com.heycream.model.Cup;
+import com.heycream.model.Order;
+import com.heycream.utils.Randomizer;
+
 
 public class OrderManager {
-    private final TimeManager timeManager;
 
-    public OrderManager(TimeManager sharedTime) {
-        this.timeManager = sharedTime;
+    public OrderManager() {}
+
+    /** Dummy customer generator (create placeholder). */
+    public Customer generateCustomer() {
+        return new Customer("Guest", new Order(null, null, null, null), null, 0);
     }
 
-    public Order generateOrder() {
+    /** Simple equality check (can be customized later). */
+    public boolean isOrderCorrect(Cup playerCup, Customer customer) {
+        if (playerCup == null || customer == null) return false;
+        Order order = customer.getOrder();
+        if (order == null) return false;
+        return order.checkMatch(playerCup);
+    }
+
+   public Order generateOrder() {
         return Randomizer.randomOrder();
     }
-
-    public Customer generateCustomer() {
-        Order order = generateOrder();
-        String name = Randomizer.randomName();
-        CustomerBehavior behavior = Randomizer.randomBehavior();
-        return new Customer(name, order, behavior, timeManager.getCurrentMinute());
-    }
-
-    public boolean isOrderCorrect(Cup playerCup, Customer customer) {
-        return customer.getOrder().checkMatch(playerCup);
+    /** Simplified readiness check (already added earlier). */
+    public boolean canServe(Cup prepared) {
+        if (prepared == null) return false;
+        if (prepared.getType() == null) return false;
+        int required = prepared.getSize() != null ? prepared.getSize().getMaxScoops() : 0;
+        if (required <= 0) return false;
+        return prepared.getScoops() != null && prepared.getScoops().size() >= required;
     }
 }

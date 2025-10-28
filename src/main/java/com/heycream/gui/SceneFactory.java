@@ -1,7 +1,7 @@
-package com.heycream.gui.util;
+package com.heycream.gui;
 
+import com.heycream.gui.AnimationUtil;
 import com.heycream.gui.AppTheme;
-import com.heycream.gui.util.AnimationUtil; // ของนายที่มีอยู่แล้ว
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;

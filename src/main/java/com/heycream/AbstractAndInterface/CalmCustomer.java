@@ -1,5 +1,15 @@
 package com.heycream.AbstractAndInterface;
 
+/**
+ * Calm customers are polite and patient.
+ */
 public class CalmCustomer implements CustomerBehavior {
-    @Override public double getTipBonus() { return 1.0; }
+
+    @Override
+    public double getTipBonus() { return 1.0; }
+
+    @Override
+    public int getPatienceSeconds() { return 8; }
+
+     @Override public String getText() { return "speaking softly and patiently"; }
 }

@@ -17,7 +17,7 @@ public class GameManager {
         this.rootPane = rootPane;
         this.timeManager = timeManager;
         this.uiManager = uiManager;
-        this.orderManager = new OrderManager(timeManager);
+        this.orderManager = new OrderManager();
         this.moneyManager = new MoneyManager();
         this.customerManager = new CustomerManager(rootPane, uiManager);
     }

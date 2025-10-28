@@ -1,71 +1,116 @@
 package com.heycream.gui;
 
+import com.heycream.AbstractAndInterface.CustomerBehavior;
+import com.heycream.actor.*;
+import com.heycream.gui.*;
 import com.heycream.manager.*;
+import com.heycream.model.Order;
+import com.heycream.utils.Randomizer;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
+import java.util.Random;
+import javafx.scene.layout.Pane;
 
-import java.util.Objects;
-
+/**
+ * GameSceneController - main gameplay logic for HeyCream.
+ * Includes customer spawn sequence and behavior integration.
+ */
 public class GameSceneController {
 
-    // === FXML nodes ===
-    @FXML private AnchorPane rootPane;   // <- ต้องมีใน FXML: fx:id="rootPane"
-    @FXML private ImageView  foodTruck;
-    @FXML private Label      timeLabel;
-    @FXML private Label      coinLabel;
+    @FXML private Pane backgroundLayer;
+    @FXML private Pane truckLayer;
+    @FXML private Pane customerLayer;
+    @FXML private Pane itemLayer;
+    @FXML private Pane uiLayer;
 
-    // === Managers ===
-    private UIManager uiManager;
+    @FXML private Label timeLabel;
+    @FXML private Label coinLabel;
+
     private TimeManager timeManager;
+    private UIManager uiManager;
+    private OrderManager orderManager;
     private ItemManager itemManager;
-    private InteractionManager interactionManager;
-    private GameManager gameManager;
+    private CustomerManager customerManager;
+
+    private final Random random = new Random();
+    private boolean isServing = false;
 
     @FXML
     public void initialize() {
-        // --- Scene base ---
-        rootPane.setPrefSize(900, 600);
-        BackgroundBase.setupBase(rootPane); // ใส่พื้นหลัง + เมฆ
-
-        // --- Food truck image (front layer) ---
-        if (foodTruck != null) {
-            String path = "/com/heycream/assets/FoodTruck.png";
-            Image truck = new Image(Objects.requireNonNull(
-                    getClass().getResource(path), "Missing asset: " + path
-            ).toExternalForm());
-            foodTruck.setImage(truck);
-            // วางให้พอดีกับดีไซน์ 900x600 (ภาพแผงควบคุมอยู่ล่าง)
-            foodTruck.setFitWidth(900);
-            foodTruck.setPreserveRatio(true);
-            foodTruck.setLayoutX(0);
-            foodTruck.setLayoutY(0);
-            foodTruck.toFront();
-        }
-
-        // --- Managers ---
-        uiManager = new UIManager(rootPane);
-
+        BackgroundBase.setupBase(backgroundLayer);
+        FoodTruckLayer.setupTruck(truckLayer);
+        customerManager = new CustomerManager(customerLayer, uiManager);
+        orderManager = new OrderManager();
         timeManager = new TimeManager(timeLabel);
-        timeManager.startAt(12, 0);              // เริ่มเวลา 12:00
-        timeManager.runGameClockRealtime(1.0);   // เดินทุก 1 วินาที = 1 นาทีในเกม
+        timeManager.startAt(12, 0);
+        timeManager.runGameClockRealtime(1.0);
+        spawnCustomerSequence();
+    }
 
-        itemManager = new ItemManager(rootPane);
-        interactionManager = new InteractionManager(rootPane, itemManager);
 
-        gameManager = new GameManager(rootPane, timeManager, uiManager);
-        gameManager.spawnNextCustomer();
+    /**
+     * Customer loop: spawn, interact, serve, and repeat.
+     */
+    private void spawnCustomerSequence() {
+        String[] names = {"Cat", "Dog", "Pig", "Tiger", "Elephant"};
+        String name = names[random.nextInt(names.length)];
 
-        // --- Mouse interaction (pick/place zones) ---
-        rootPane.setOnMouseClicked(e ->
-                interactionManager.pickOrPlace(e.getX(), e.getY())
-        );
+        // Random behavior using your provided static method
+        CustomerBehavior behavior = Randomizer.randomBehavior();
 
-        // --- HUD always on top ---
-        if (timeLabel != null) timeLabel.toFront();
-        if (coinLabel != null) coinLabel.toFront();
-        if (foodTruck != null) foodTruck.toFront();
+        // Generate an empty or placeholder order
+        Order order = orderManager.generateOrder();
+
+        // Use current in-game time as arrival minute
+        int arrivalMinute = timeManager.getCurrentMinute();
+
+        // Create the customer with full constructor
+        Customer customer = new Customer(name, order, behavior, arrivalMinute);
+
+        // Animate entry
+        customerManager.spawnCustomer(customer, () -> {
+            System.out.println("✅ " + name + " (" + behavior.getClass().getSimpleName() + ") arrived at " + arrivalMinute);
+            uiManager.showSpeechBubble(customer.getSpeech(), null);
+            waitForServe(customer);
+        });
+    }
+
+    /**
+     * Waits for player serve action (simulated delay for now).
+     */
+    private void waitForServe(Customer currentCustomer) {
+        // Behavior can influence patience time
+        int waitSeconds = currentCustomer.getBehavior().getPatienceSeconds();
+        System.out.println("🕒 " + currentCustomer.getName() + " will wait " + waitSeconds + "s.");
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(waitSeconds * 1000L);
+            } catch (InterruptedException ignored) {}
+
+            javafx.application.Platform.runLater(() -> {
+                serveCustomer(currentCustomer);
+            });
+        }).start();
+    }
+
+    /**
+     * Called when serving an ice cream to current customer.
+     */
+    private void serveCustomer(Customer customer) {
+        if (isServing) return;
+        isServing = true;
+
+        // Behavior decides reaction text
+        String reaction = customer.getBehavior().getReactionPhrase();
+        System.out.println("🍦 Served " + customer.getName() + " -> " + reaction);
+
+        uiManager.showSpeechBubble(reaction, () -> {
+            // Leave scene and spawn next one
+            customerManager.leaveScene(() -> {
+                isServing = false;
+                spawnCustomerSequence();
+            });
+        });
     }
 }

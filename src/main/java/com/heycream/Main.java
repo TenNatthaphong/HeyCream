@@ -1,6 +1,6 @@
 package com.heycream;
 
-import com.heycream.gui.util.SceneFactory;
+import com.heycream.gui.SceneFactory;
 import javafx.application.Application;
 import javafx.stage.Stage;
 

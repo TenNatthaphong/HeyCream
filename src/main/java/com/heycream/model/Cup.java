@@ -1,43 +1,94 @@
 package com.heycream.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
+/**
+ * Cup represents the ice cream container.
+ * Holds scoops, toppings, and sauce.
+ * Provides helper methods for comparison and text representation.
+ */
 public class Cup {
-    private final CupType type;
-    private final CupSize size;
-    private final List<IceCream> scoops = new ArrayList<>();
-    private Topping topping;
+
+    private List<IceCream> scoops = new ArrayList<>();
+    private List<Topping> toppings = new ArrayList<>();
     private Sauce sauce;
+    private Topping topping; // optional main topping (if you treat it separately)
+    private CupType type;
+    private CupSize size;
 
     public Cup(CupType type, CupSize size) {
         this.type = type;
         this.size = size;
     }
 
-    public CupType getType() { return type; }
-    public CupSize getSize() { return size; }
-    public List<IceCream> getScoops() { return Collections.unmodifiableList(scoops); }
-    public Topping getTopping() { return topping; }
-    public Sauce getSauce() { return sauce; }
+    // =========================
+    // Getters & Setters
+    // =========================
 
-    public void addScoop(IceCream iceCream) {
-        if (iceCream != null && scoops.size() < 3) scoops.add(iceCream);
+    public List<IceCream> getScoops() {
+        return scoops;
     }
-    public void setTopping(Topping topping) { this.topping = topping; }
-    public void setSauce(Sauce sauce) { this.sauce = sauce; }
 
+    public List<Topping> getToppings() {
+        return toppings;
+    }
+
+    public void addTopping(Topping t) {
+        if (t != null) toppings.add(t);
+    }
+
+    /** Optional single topping shortcut (if used by checkMatch) */
+    public Topping getTopping() {
+        // return the first topping or explicit field if you prefer single-topping logic
+        if (topping != null) return topping;
+        if (!toppings.isEmpty()) return toppings.get(0);
+        return null;
+    }
+
+    public void setTopping(Topping t) {
+        this.topping = t;
+        if (t != null && !toppings.contains(t)) toppings.add(t);
+    }
+
+    public Sauce getSauce() {
+        return sauce;
+    }
+
+    public void setSauce(Sauce sauce) {
+        this.sauce = sauce;
+    }
+
+    public CupType getType() {
+        return type;
+    }
+
+    public CupSize getSize() {
+        return size;
+    }
+
+    /** Shortcut for readable cup type. */
+    public String typeToString() {
+        return type != null ? type.typeToString() : "Unknown";
+    }
+
+    /** Shortcut for readable cup size. */
+    public String sizeToString() {
+        return size != null ? size.sizeToString() : "Unknown";
+    }
+
+    // =========================
+    // Matching logic
+    // =========================
+
+    /**
+     * Compare this cup with another cup to see if they are the same container type and size.
+     * Ignores scoops and toppings.
+     */
     public boolean matches(Cup other) {
         if (other == null) return false;
-        return this.type == other.type && this.size == other.size;
-    }
-
-    public String typeToString() { return type.name(); }
-    public String sizeToString() { return size.name(); }
-
-    @Override
-    public String toString() {
-        return size + " " + type + " with " + scoops.size() + " scoop(s)"
-                + (topping != null ? ", topping=" + topping.getName() : "")
-                + (sauce != null ? ", sauce=" + sauce.getName() : "");
+        return Objects.equals(this.type, other.type)
+            && Objects.equals(this.size, other.size);
     }
 }

@@ -1,7 +1,7 @@
 package com.heycream.gui;
 
-import com.heycream.gui.util.HasRootPane;
-import com.heycream.gui.util.SceneFactory;
+import com.heycream.gui.HasRootPane;
+import com.heycream.gui.SceneFactory;
 import com.heycream.manager.SoundManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;

@@ -1,5 +1,6 @@
 package com.heycream.model;
 
+import com.heycream.AbstractAndInterface.CustomerBehavior;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,31 +42,38 @@ public class Order {
         return sameCup && sameScoops && sameTopping && sameSauce;
     }
 
-    public String describe() {
-        StringBuilder sb = new StringBuilder("I’d like a ");
+    public String describe(CustomerBehavior behavior) {
+    StringBuilder sb = new StringBuilder("I’d like a ");
 
-        String cupType = requestedCup.typeToString();
-        if (!"CONE".equalsIgnoreCase(cupType)) {
-            sb.append(requestedCup.sizeToString().toLowerCase())
-              .append(" ")
-              .append(cupType.toLowerCase());
-        } else {
-            sb.append("cone");
-        }
-
-        sb.append(" with ");
-        for (int i = 0; i < requestedScoops.size(); i++) {
-            sb.append(requestedScoops.get(i).getFlavor());
-            if (i < requestedScoops.size() - 1) sb.append(", ");
-        }
-
-        if (requestedTopping != null) {
-            sb.append(", topped with ").append(requestedTopping.getName());
-        }
-        if (requestedSauce != null) {
-            sb.append(", and drizzled with ").append(requestedSauce.getName()).append(" sauce");
-        }
-        sb.append("!");
-        return sb.toString();
+    String cupType = requestedCup.typeToString();
+    if (!"CONE".equalsIgnoreCase(cupType)) {
+        sb.append(requestedCup.sizeToString().toLowerCase())
+          .append(" ")
+          .append(cupType.toLowerCase());
+    } else {
+        sb.append("cone");
     }
+
+    sb.append(" with ");
+    for (int i = 0; i < requestedScoops.size(); i++) {
+        sb.append(requestedScoops.get(i).getFlavor());
+        if (i < requestedScoops.size() - 1) sb.append(", ");
+    }
+
+    if (requestedTopping != null) {
+        sb.append(", topped with ").append(requestedTopping.getName());
+    }
+    if (requestedSauce != null) {
+        sb.append(", and drizzled with ").append(requestedSauce.getName()).append(" sauce");
+    }
+    sb.append("!");
+
+    // Add behavior text at the end
+    if (behavior != null) {
+        sb.append(" (").append(behavior.getText()).append(")");
+    }
+
+    return sb.toString();
+}
+
 }

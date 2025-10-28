@@ -18,6 +18,35 @@ public class UIManager {
         this.rootPane = rootPane;
     }
 
+    /** Show a fading text message at top-center. */
+    public void toast(String message) {
+        Text text = new Text(message);
+        text.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-fill: white;");
+        text.setLayoutX(360); // adjust to your layout
+        text.setLayoutY(100);
+        rootPane.getChildren().add(text);
+
+        FadeTransition fade = new FadeTransition(Duration.seconds(2.0), text);
+        fade.setFromValue(1.0);
+        fade.setToValue(0.0);
+        fade.setOnFinished(e -> rootPane.getChildren().remove(text));
+        fade.play();
+    }
+
+    /** Flash small hint near bottom (shorter duration). */
+    public void flashHint(String hint) {
+        Text text = new Text(hint);
+        text.setStyle("-fx-font-size: 18px; -fx-fill: yellow;");
+        text.setLayoutX(300);
+        text.setLayoutY(560);
+        rootPane.getChildren().add(text);
+
+        FadeTransition fade = new FadeTransition(Duration.seconds(1.5), text);
+        fade.setFromValue(1.0);
+        fade.setToValue(0.0);
+        fade.setOnFinished(e -> rootPane.getChildren().remove(text));
+        fade.play();
+    }
     public void showSpeechBubble(String text, Runnable onOk) {
         AnchorPane popup = new AnchorPane();
         popup.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-background-radius: 15; -fx-border-radius: 15;");

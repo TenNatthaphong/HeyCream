@@ -1,11 +1,11 @@
 package com.heycream.actor;
 
 import com.heycream.AbstractAndInterface.*;
-import com.heycream.model.Order;   // <— ต้องชัดเจนว่าเป็น model.Order
+import com.heycream.model.Order; 
 
 public class Customer {
     private final String name;
-    private final Order order;     // <— type เป็น model.Order
+    private final Order order;
     private final CustomerBehavior behavior;
     private final int arrivalMinute;
 
@@ -20,5 +20,5 @@ public class Customer {
     public Order getOrder() { return order; }  // <— คืน model.Order
     public CustomerBehavior getBehavior() { return behavior; }
     public int getArrivalMinute() { return arrivalMinute; }
-    public String getSpeech() { return order != null ? order.describe() : "Hello!"; }
+    public String getSpeech() { return order != null ? order.describe(behavior) : "Hello!"; }
 }
