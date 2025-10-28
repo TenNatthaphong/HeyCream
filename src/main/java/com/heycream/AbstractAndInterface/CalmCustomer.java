@@ -9,7 +9,7 @@ public class CalmCustomer implements CustomerBehavior {
     public double getTipBonus() { return 1.0; }
 
     @Override
-    public int getPatienceSeconds() { return 8; }
+    public int getPatienceSeconds() { return 30; }
 
      @Override
     public String getReactionPhrase(boolean correct) {

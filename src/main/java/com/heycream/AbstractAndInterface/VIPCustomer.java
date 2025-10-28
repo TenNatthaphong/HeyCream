@@ -12,7 +12,7 @@ public class VIPCustomer implements CustomerBehavior {
     public boolean isVIP() { return true; }
 
     @Override
-    public int getPatienceSeconds() { return 10; }
+    public int getPatienceSeconds() { return 15; }
 
     @Override
 public String getReactionPhrase(boolean correct) {

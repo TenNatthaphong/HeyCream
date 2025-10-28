@@ -12,7 +12,7 @@ public class RudeCustomer implements CustomerBehavior {
     public boolean isRude() { return true; }
 
     @Override
-    public int getPatienceSeconds() { return 3; }
+    public int getPatienceSeconds() { return 20; }
 
      @Override
 public String getReactionPhrase(boolean correct) {

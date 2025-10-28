@@ -17,9 +17,9 @@ public class MoneyManager {
         int base = 50;
         CustomerBehavior b = customer.getBehavior();
 
-        double tipMult = b.getTipBonus();  // VIP 1.5, Calm 1.0, Rude 0.8 (ตามไฟล์ behavior ที่คุณให้มา)
+        double tipMult = b.getTipBonus();  // VIP 1.5, Calm 1.0, Rude 0.8 
         if (!correct) {
-            // ถ้าเสิร์ฟผิด: ปรับเป็นหักครึ่งค่าฐาน (หรือปรับตามที่ต้องการ)
+           
             int penalty = (int)Math.round(-0.5 * base);
             return penalty;
         }
