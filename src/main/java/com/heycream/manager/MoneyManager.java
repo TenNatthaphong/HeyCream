@@ -26,7 +26,7 @@ public class MoneyManager {
         if (cup.getSauce() != null) base += cup.getSauce().getPrice();
 
         // พิจารณาถูก/ผิด
-        double result = correct ? base : base * -0.3;
+        double result = correct ? base : base * -0.2;
 
         // พิจารณาความอดทนของลูกค้า
         result *= Math.max(0.2, patienceRatio);

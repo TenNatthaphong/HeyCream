@@ -22,11 +22,10 @@ public class Randomizer {
 
     /** ✅ Random order that strictly follows cup/size limits */
     public static Order randomOrder() {
-        // 1️⃣ เลือกประเภทถ้วย
         CupType type = R.nextDouble() < 0.7 ? CupType.CUP : CupType.CONE;
         CupSize size = (type == CupType.CUP)
                 ? CupSize.values()[R.nextInt(CupSize.values().length)]
-                : CupSize.M; // cone behaves like Medium
+                : CupSize.M; 
 
         Cup cup = new Cup(type, size);
 

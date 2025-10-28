@@ -53,23 +53,22 @@ public void initialize() {
     moneyManager = new MoneyManager();
     orderManager = new OrderManager();
     customerManager = new CustomerManager(customerLayer, uiManager);
-    gameManager = new GameManager(timeManager, uiManager, customerManager, moneyManager, orderManager);
+    gameManager = new GameManager(timeManager, uiManager, customerManager, moneyManager, orderManager,itemManager);
     gameManager.setController(this);
     itemManager = new ItemManager(itemLayer);
     itemManager.setGameManager(gameManager);
     interactionManager = new InteractionManager(itemManager, uiManager);
     interactionManager.attachToLayer(itemLayer);
+    customerManager.setPatienceHost(itemLayer);
     itemLayer.prefWidthProperty().bind(rootPane.widthProperty());
     itemLayer.prefHeightProperty().bind(rootPane.heightProperty());
     itemLayer.setPickOnBounds(true);
     itemLayer.setMouseTransparent(false);
-    Platform.runLater(() -> {
-        spawnCustomerSequence();
-        itemLayer.setOnMouseClicked(e -> {
-            System.out.println("🖱 CLICK at X=" + e.getX() + ", Y=" + e.getY());
-            String item = itemManager.detectItemByPosition(e.getX(), e.getY());
-            if (item != null) handleItemClick(item);
-        });
+    spawnCustomerSequence();
+    itemLayer.setOnMouseClicked(e -> {
+        System.out.println("🖱 CLICK at X=" + e.getX() + ", Y=" + e.getY());
+        String item = itemManager.detectItemByPosition(e.getX(), e.getY());
+        if (item != null) handleItemClick(item);
     });
     backgroundLayer.toBack();
     customerLayer.toFront();
@@ -149,39 +148,9 @@ public void initialize() {
         });
     });
 }
-
-
     // =======================================================
     // 🔹 Serve Logic (manual)
     // =======================================================
-    private void serveCustomer(Customer customer) {
-    if (isServing) return;
-    isServing = true;
-
-    Cup servedCup = itemManager.getCurrentCup();
-    if (servedCup == null) {
-        System.out.println("⚠ No cup to serve!");
-        isServing = false;
-        return;
-    }
-    boolean correct = orderManager.checkMatch(servedCup, customer.getOrder());
-    double patienceRatio = customerManager.getPatienceRatio();
-    System.out.println("🍦 Served " + customer.getName() + " → Correct = " + correct);
-    String reaction = customer.getBehavior().getReactionPhrase(correct);
-    uiManager.showSpeechBubble(reaction, () -> {
-        int delta = gameManager.getMoneyManager().calculateReward(customer, servedCup, correct, patienceRatio);
-        gameManager.getMoneyManager().addMoney(delta);
-
-        uiManager.showCoinFloat(delta);
-        uiManager.updateCoinLabel(gameManager.getMoneyManager().getTotal());
-        itemManager.clearAllPreparedVisuals();
-
-        customerManager.leaveScene(() -> {
-            isServing = false;
-            spawnCustomerSequence();
-        });
-    });
-}
     
     public boolean isSpawningCustomer() {
         return isSpawningCustomer;

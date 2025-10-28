@@ -104,8 +104,8 @@ public class UIManager {
         gainText.setStyle(String.format(
             "-fx-font-size: 22px; -fx-fill: %s; -fx-font-weight: bold;", color
         ));
-        gainText.setLayoutX(700);
-        gainText.setLayoutY(400);
+        gainText.setLayoutX(720);
+        gainText.setLayoutY(300);
         uiPane.getChildren().add(gainText);
 
         // 🔹 Floating + fading animation

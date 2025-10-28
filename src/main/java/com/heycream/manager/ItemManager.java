@@ -146,13 +146,13 @@ public class ItemManager {
         }
 
         long now = System.currentTimeMillis();
-        if (now - lastScoopTime < 100) return;
+        if (now - lastScoopTime < 60) return;
         lastScoopTime = now;
 
         ImageView scoop = new ImageView(itemImages.get(scoopName));
         scoop.setFitHeight(28);
         scoop.setPreserveRatio(true);
-        scoop.setLayoutX(SERVE_X - 5);
+        scoop.setLayoutX(SERVE_X );
         scoop.setLayoutY(SERVE_Y - (20 * (count + 1)));
         itemLayer.getChildren().add(scoop);
         scoop.toFront();
@@ -180,7 +180,7 @@ public class ItemManager {
         ImageView topping = new ImageView(itemImages.get(toppingName));
         topping.setFitHeight(20);
         topping.setPreserveRatio(true);
-        topping.setLayoutX(SERVE_X + 5 + offsetX);
+        topping.setLayoutX(SERVE_X + offsetX);
         topping.setLayoutY(SERVE_Y - (25 * currentCup.getScoops().size()) + offsetY);
         itemLayer.getChildren().add(topping);
         topping.toFront();
@@ -205,14 +205,14 @@ public class ItemManager {
         bottle.setFitHeight(40);
         bottle.setPreserveRatio(true);
         bottle.setLayoutX(SERVE_X - 25);
-        bottle.setLayoutY(SERVE_Y - 100);
+        bottle.setLayoutY(SERVE_Y - 80);
         itemLayer.getChildren().add(bottle);
 
-        RotateTransition pour = new RotateTransition(Duration.seconds(0.4), bottle);
+        RotateTransition pour = new RotateTransition(Duration.seconds(1), bottle);
         pour.setFromAngle(0);
         pour.setToAngle(120);
         pour.setAutoReverse(true);
-        pour.setCycleCount(2);
+        pour.setCycleCount(3);
         pour.setOnFinished(e -> itemLayer.getChildren().remove(bottle));
         pour.play();
 

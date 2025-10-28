@@ -34,12 +34,10 @@ public class Order {
         var expectedScoops = requestedScoops.stream().map(IceCream::getFlavor).sorted().toList();
         var actualScoops   = actualCup.getScoops().stream().map(IceCream::getFlavor).sorted().toList();
         boolean sameScoops = expectedScoops.equals(actualScoops);
-
         // Compare toppings
         var expectedToppings = requestedToppings.stream().map(Topping::getName).sorted().toList();
         var actualToppings   = actualCup.getToppings().stream().map(Topping::getName).sorted().toList();
         boolean sameToppings = expectedToppings.equals(actualToppings);
-
         // Compare sauce
         boolean sameSauce = (requestedSauce == null && actualCup.getSauce() == null) ||
                 (requestedSauce != null && actualCup.getSauce() != null &&

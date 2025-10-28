@@ -10,14 +10,16 @@ public class GameManager {
     private final OrderManager orderManager;
     private final CustomerManager customerManager;
     private final MoneyManager moneyManager;
+    private final ItemManager itemManager;
     private GameSceneController gameSceneController;
 
-    public GameManager(TimeManager timeManager, UIManager uiManager, CustomerManager customerManager, MoneyManager moneyManager,OrderManager orderManager) {
+    public GameManager(TimeManager timeManager, UIManager uiManager, CustomerManager customerManager, MoneyManager moneyManager,OrderManager orderManager,ItemManager itemManager) {
         this.timeManager = timeManager;
         this.uiManager = uiManager;
         this.orderManager = orderManager;
         this.customerManager = customerManager;
-        this.moneyManager = moneyManager; // ✅ Shared instance
+        this.moneyManager = moneyManager;
+        this.itemManager = itemManager;
     }
 
     public MoneyManager getMoneyManager() {
@@ -31,9 +33,11 @@ public class GameManager {
             return;
         }
 
+       if (itemManager != null) {
+        itemManager.clearAllPreparedVisuals(); 
+    }
         // ✅ ตรวจว่าทำ order ถูกหรือไม่
         boolean correct = orderManager.checkMatch(servedCup, current.getOrder());
-
         // ✅ คำนวณรางวัล
         double patienceRatio = customerManager.getPatienceRatio();
         int delta = moneyManager.calculateReward(current, servedCup, correct, patienceRatio);
