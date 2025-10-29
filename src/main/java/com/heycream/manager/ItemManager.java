@@ -266,7 +266,7 @@ public class ItemManager
     {
         itemLayer.getChildren().clear();
         currentCup = null;
-        System.out.println("🧹 Cleared all visuals from itemLayer.");
+        System.out.println("Cleared all visuals from itemLayer.");
     }
     
     // Getter , Setter

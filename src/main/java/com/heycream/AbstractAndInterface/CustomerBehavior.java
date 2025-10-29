@@ -12,5 +12,5 @@ public interface CustomerBehavior
     
     default int getPatienceSeconds() { return 20; }
 
-    public abstract String getReactionPhrase(boolean correct);
+    public String getReactionPhrase(boolean correct);
 }

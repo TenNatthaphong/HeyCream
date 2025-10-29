@@ -1,6 +1,5 @@
 package com.heycream.manager;
 
-import com.heycream.actor.Customer;
 import com.heycream.model.Cup;
 import com.heycream.model.Order;
 import com.heycream.utils.Randomizer;

@@ -53,8 +53,8 @@ public class GameSceneController
         uiManager = new UIManager(uiLayer);
         moneyManager = new MoneyManager();
         orderManager = new OrderManager();
-        customerManager = new CustomerManager(customerLayer, uiManager);
         itemManager = new ItemManager(itemLayer);
+        customerManager = new CustomerManager(customerLayer, uiManager,itemManager);
         interactionManager = new InteractionManager(itemManager, uiManager);
         timeManager = new TimeManager(timeLabel);
         gameManager = new GameManager(uiManager, customerManager, moneyManager, orderManager);
@@ -65,7 +65,6 @@ public class GameSceneController
         uiManager.setCoinLabelNode(coinLabel);
         itemManager.setGameManager(gameManager);
         customerManager.setPatienceHost(itemLayer);
-        customerManager.setItemManager(itemManager);
         customerManager.setController(this);
         interactionManager.attachToLayer(itemLayer);
 

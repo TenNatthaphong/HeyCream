@@ -40,10 +40,11 @@ public class CustomerManager
     // =====================
     // SECTION: Constructor
     // =====================
-    public CustomerManager(Pane customerLayer, UIManager uiManager)
+    public CustomerManager(Pane customerLayer, UIManager uiManager,ItemManager itemManager)
     {
         this.customerLayer = customerLayer;
         this.uiManager = uiManager;
+        this.itemManager = itemManager;
     }
 
     // =====================
@@ -267,7 +268,6 @@ public class CustomerManager
     public double getPatienceRatio() { return patienceRatio; }
     
     public void setPatienceHost(Pane host) { this.patienceHost = (host != null ? host : customerLayer); }
-    public void setItemManager(ItemManager item) { itemManager = item; }
     public void setController(GameSceneController controller) { this.controller = controller; }
     public void setOnCustomerExit(Runnable callback) { this.onCustomerExit = callback; }
 }
