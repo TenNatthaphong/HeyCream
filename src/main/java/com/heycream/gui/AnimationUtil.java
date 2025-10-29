@@ -13,10 +13,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public final class AnimationUtil {
     private AnimationUtil() {}
 
-    /**
-     * Add a background image (cover) and spawn multiple moving clouds.
-     * Clouds move left->right endlessly with random speed/height.
-     */
     public static void addBackgroundWithClouds(
             AnchorPane root,
             String backgroundPng,
@@ -24,7 +20,7 @@ public final class AnimationUtil {
             double width, double height,
             int cloudCount
     ) {
-        // Background layer
+        // 🔹 Background image
         ImageView bg = new ImageView(new Image(
                 Objects.requireNonNull(AnimationUtil.class.getResource(backgroundPng),
                         "Missing asset: " + backgroundPng).toExternalForm()
@@ -36,8 +32,9 @@ public final class AnimationUtil {
         AnchorPane layer = new AnchorPane(bg);
         root.getChildren().add(0, layer);
 
-        // Clouds
-        for (int i = 0; i < cloudCount; i++) {
+        // 🔹 Clouds (fewer, higher, slower)
+        int safeCount = Math.max(3, Math.min(cloudCount, 6));
+        for (int i = 0; i < safeCount; i++) {
             spawnCloud(layer, cloudPng, width, height);
         }
     }
@@ -52,30 +49,25 @@ public final class AnimationUtil {
         cloud.setOpacity(0.85);
         cloud.setPreserveRatio(true);
 
-        // Random scale and Y band near sky
-        double scale = r.nextDouble(0.9, 1.3);
+        // ☁️ Random scale & Y (only top sky zone)
+        double scale = r.nextDouble(0.7, 1.1);
         cloud.setScaleX(scale);
         cloud.setScaleY(scale);
 
-        double y = r.nextDouble(20, sceneH * 0.35);
+        double y = r.nextDouble(sceneH * 0.05, sceneH * 0.25);
         cloud.setLayoutY(y);
 
-        // Start slightly off-screen on the left with random offset
-        double startX = -200 - r.nextDouble(0, 300);
+        double startX = -250 - r.nextDouble(0, 300);
         cloud.setLayoutX(startX);
-
         layer.getChildren().add(cloud);
 
-        // Random speed
-        double seconds = r.nextDouble(22, 36); // slower looks cute
+        // ☁️ Random gentle speed
+        double seconds = r.nextDouble(20, 40);
         TranslateTransition tt = new TranslateTransition(Duration.seconds(seconds), cloud);
         tt.setFromX(0);
-        tt.setToX(sceneW + 400); // run off the right side
+        tt.setToX(sceneW + 300);
         tt.setCycleCount(TranslateTransition.INDEFINITE);
         tt.setInterpolator(Interpolator.LINEAR);
-        tt.setOnFinished(ev -> {
-            // When a cycle ends we can randomize again (not strictly needed for INDEFINITE)
-        });
         tt.play();
     }
 }

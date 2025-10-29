@@ -1,74 +1,116 @@
 package com.heycream.gui;
 
-import javafx.animation.Interpolator;
-import javafx.animation.TranslateTransition;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
+import javafx.animation.*;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 
-public class ResultPopup extends StackPane {
+public class ResultPopup extends Pane {
+    public ResultPopup(int correct, int total, int money,
+                       Runnable onRestart, Runnable onBack) {
 
-    private final Label titleLabel;
-    private final Label starLabel;
-    private final Label moneyLabel;
-    private final Label summaryLabel;
-    private final Button okButton;
+        // 🔹 Base style
+        setPrefSize(400, 300);
+        setStyle("""
+            -fx-background-color: rgba(255, 240, 245, 0.92);
+            -fx-border-color: #ff7fbf;
+            -fx-border-width: 3;
+            -fx-background-radius: 20;
+            -fx-border-radius: 20;
+            """);
+        setLayoutX(250);
+        setLayoutY(300); // เริ่มต่ำหน่อยสำหรับ slide-up
 
-    public ResultPopup(int correctServes, int totalServes, int totalMoney) {
-        setPrefSize(500, 400);
-        setStyle("-fx-background-color: rgba(255,255,255,0.95); -fx-background-radius: 20; "
-               + "-fx-border-radius: 20; -fx-border-color: #ff8fb3; -fx-border-width: 3;");
+        
+        // 🔹 Title
+        Label title = new Label("Day Summary");
+        title.setStyle("""
+            -fx-font-size: 26px;
+            -fx-font-weight: bold;
+            -fx-text-fill: #ff4fa3;
+            """);
+        title.setLayoutX(110);
+        title.setLayoutY(30);
 
-        // Overlay มืดหลัง popup
-        Rectangle overlay = new Rectangle(900, 600, Color.rgb(0,0,0,0.5));
+        // 🔹 Stars
+        int stars = computeStars(money);
+        Label starLabel = new Label(getStarsSymbol(stars));
+        starLabel.setStyle("-fx-font-size: 28px; -fx-text-fill: gold;");
+        starLabel.setLayoutX(155);
+        starLabel.setLayoutY(80);
 
-        titleLabel = new Label("🍦 สรุปผลประจำวัน 🍦");
-        titleLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #ff6fa0;");
+        // 🔹 Stats text
+        Text stats = new Text(String.format(
+            "⭐ Correct orders: %d / %d\n💰 Total money: %d coins",
+            correct, total, money
+        ));
+        stats.setStyle("-fx-font-size: 18px; -fx-fill: #333;");
+        stats.setLayoutX(80);
+        stats.setLayoutY(150);
 
-        // ★ คำนวณดาว
-        int stars = calculateStars(correctServes, totalServes, totalMoney);
-        starLabel = new Label("⭐".repeat(stars) + "☆".repeat(3 - stars));
-        starLabel.setStyle("-fx-font-size: 40px; -fx-text-fill: gold;");
+        // 🔹 Buttons
+        Button restart = new Button("Restart Day");
+        restart.setStyle("""
+            -fx-font-size: 16px;
+            -fx-background-color: #8ad7ff;
+            -fx-text-fill: #003366;
+            -fx-background-radius: 12;
+            -fx-pref-width: 120;
+            """);
+        restart.setLayoutX(70);
+        restart.setLayoutY(220);
+        restart.setOnAction(e -> { if (onRestart != null) onRestart.run(); });
 
-        moneyLabel = new Label("รายได้ทั้งหมด: " + totalMoney + " 💰");
-        moneyLabel.setStyle("-fx-font-size: 20px; -fx-text-fill: #333;");
+        Button back = new Button("Back to Menu");
+        back.setStyle("""
+            -fx-font-size: 16px;
+            -fx-background-color: #ff8fb3;
+            -fx-text-fill: white;
+            -fx-background-radius: 12;
+            -fx-pref-width: 120;
+            """);
+        back.setLayoutX(220);
+        back.setLayoutY(220);
+        back.setOnAction(e -> { if (onBack != null) onBack.run(); });
 
-        int wrong = totalServes - correctServes;
-        summaryLabel = new Label("เสิร์ฟถูกและทัน: " + correctServes + " / พลาด: " + wrong);
-        summaryLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: #555;");
+        getChildren().addAll(title, starLabel, stats, restart, back);
 
-        okButton = new Button("OK");
-        okButton.getStyleClass().add("primary-btn");
-        okButton.setOnAction(e -> ((Pane) getParent()).getChildren().remove(this));
+        // 🔹 Fade + Slide animation
+        setOpacity(0);
+        TranslateTransition slideUp = new TranslateTransition(Duration.seconds(0.6), this);
+        slideUp.setFromY(80);
+        slideUp.setToY(0);
+        slideUp.setInterpolator(Interpolator.EASE_OUT);
+        slideUp.setAutoReverse(false);
+        
+        FadeTransition fadeIn = new FadeTransition(Duration.seconds(0.8), this);
+        fadeIn.setFromValue(0);
+        fadeIn.setToValue(1);
 
-        VBox box = new VBox(20, titleLabel, starLabel, moneyLabel, summaryLabel, okButton);
-        box.setAlignment(Pos.CENTER);
-        getChildren().addAll(overlay, box);
-
-        // สไลด์ขึ้น
-        TranslateTransition slide = new TranslateTransition(Duration.seconds(0.8), this);
-        slide.setFromY(600);
-        slide.setToY(0);
-        slide.setInterpolator(Interpolator.EASE_OUT);
-        slide.play();
+        ParallelTransition appear = new ParallelTransition(slideUp, fadeIn);
+        appear.play();
     }
 
-    private int calculateStars(int correctServes, int totalServes, int totalMoney) {
-        if (totalServes == 0) return 0;
-        double ratio = (double) correctServes / totalServes;
-        double incomeFactor = totalMoney / (double) (totalServes * 30); // เฉลี่ยเงินต่อ order ~30
+    // ==========================================================
+    // 🔸 Helper: คำนวณจำนวนดาวจากยอดเงิน
+    // ==========================================================
+    private int computeStars(int money) {
+        if (money >= 850) return 3;
+        if (money >= 600) return 2;
+        if (money >= 300) return 1;
+        return 0;
+    }
 
-        double score = (ratio * 0.7) + (incomeFactor * 0.3);
-
-        if (score >= 0.85) return 3;
-        else if (score >= 0.6) return 2;
-        else if (score >= 0.3) return 1;
-        else return 0;
+    // ==========================================================
+    // 🔸 Helper: สร้างสัญลักษณ์ดาว
+    // ==========================================================
+    private String getStarsSymbol(int stars) {
+        return switch (stars) {
+            case 3 -> "★★★";
+            case 2 -> "★★☆";
+            case 1 -> "★☆☆";
+            default -> "☆☆☆";
+        };
     }
 }

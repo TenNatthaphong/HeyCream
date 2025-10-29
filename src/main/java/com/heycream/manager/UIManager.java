@@ -94,6 +94,12 @@ public class UIManager {
         uiPane.getChildren().add(popup);
         activeBubble = popup;
     }
+    public void closeActiveBubble() {
+    if (activeBubble != null) {
+        uiPane.getChildren().remove(activeBubble);
+        activeBubble = null;
+    }
+}
 
     /** 💰 Show floating coin gain text near cashier */
     public void showCoinFloat(int amount) {
@@ -109,9 +115,9 @@ public class UIManager {
         uiPane.getChildren().add(gainText);
 
         // 🔹 Floating + fading animation
-        TranslateTransition rise = new TranslateTransition(Duration.seconds(1.2), gainText);
+        TranslateTransition rise = new TranslateTransition(Duration.seconds(2), gainText);
         rise.setByY(-40);
-        FadeTransition fade = new FadeTransition(Duration.seconds(1.2), gainText);
+        FadeTransition fade = new FadeTransition(Duration.seconds(2), gainText);
         fade.setFromValue(1.0);
         fade.setToValue(0.0);
         rise.setOnFinished(e -> uiPane.getChildren().remove(gainText));

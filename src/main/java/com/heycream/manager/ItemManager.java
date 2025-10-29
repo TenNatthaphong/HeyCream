@@ -14,12 +14,12 @@ public class ItemManager {
     private final Map<String, Image> itemImages = new HashMap<>();
     private Cup currentCup;
     private GameManager gameManager;
-   private boolean isServing = false;
+    private boolean isServing = false;
+
     // 📍 ตำแหน่งเสิร์ฟ
     private static final double SERVE_X = 740;
     private static final double SERVE_Y = 510;
 
-    // 🔒 ป้องกันคลิกซ้ำใน 0.1 วินาที
     private long lastScoopTime = 0;
 
     public ItemManager(Pane itemLayer) {
@@ -112,10 +112,14 @@ public class ItemManager {
         currentCup = new Cup(cupType, cupSize);
 
         ImageView view = new ImageView(itemImages.get(type));
-        view.setFitHeight(35);
+
+        // 🍦 ถ้าเป็น Cone → 22, ถ้า Cup → 30 แล้วขยาย +3
+        double baseHeight = type.equals("Cone") ? 23 : 31;
+        view.setFitHeight(baseHeight + 3);
         view.setPreserveRatio(true);
-        view.setLayoutX(SERVE_X);
-        view.setLayoutY(SERVE_Y);
+        view.setLayoutX(SERVE_X + 3);
+        view.setLayoutY(SERVE_Y + 3);
+
         itemLayer.getChildren().add(view);
         currentCup.setImageView(view);
 
@@ -150,10 +154,10 @@ public class ItemManager {
         lastScoopTime = now;
 
         ImageView scoop = new ImageView(itemImages.get(scoopName));
-        scoop.setFitHeight(28);
+        scoop.setFitHeight(16 + 3); // ขยาย +3
         scoop.setPreserveRatio(true);
-        scoop.setLayoutX(SERVE_X );
-        scoop.setLayoutY(SERVE_Y - (20 * (count + 1)));
+        scoop.setLayoutX(SERVE_X + 3);
+        scoop.setLayoutY(SERVE_Y + 3 - (10 * (count + 1)));
         itemLayer.getChildren().add(scoop);
         scoop.toFront();
 
@@ -169,45 +173,40 @@ public class ItemManager {
     // 🔹 Topping
     // =======================================================
     public void addToppingToCup(String toppingName) {
-    if (currentCup == null || currentCup.getScoops().isEmpty()) {
-        System.out.println("⚠ Need cup + scoop first!");
-        return;
+        if (currentCup == null || currentCup.getScoops().isEmpty()) {
+            System.out.println("⚠ Need cup + scoop first!");
+            return;
+        }
+
+        int count = currentCup.getToppings().size();
+        int max = currentCup.getSize().getMaxToppings();
+        if (count >= max) {
+            System.out.println("⚠ Max toppings reached!");
+            return;
+        }
+
+        long now = System.currentTimeMillis();
+        if (now - lastScoopTime < 80) return;
+        lastScoopTime = now;
+
+        double offsetX = (Math.random() - 0.5) * 8;
+        double offsetY = (Math.random() * 4) - 2;
+
+        ImageView topping = new ImageView(itemImages.get(toppingName));
+        topping.setFitHeight(18); // ขยาย +3
+        topping.setPreserveRatio(true);
+        topping.setLayoutX(SERVE_X + 3 + offsetX);
+        topping.setLayoutY(SERVE_Y + 4 - (10 * currentCup.getScoops().size()) + offsetY - 5);
+        itemLayer.getChildren().add(topping);
+        topping.toFront();
+
+        String name = toppingName.replace("Topping", "");
+        Topping top = new Topping(name, 5);
+        top.setImageView(topping);
+        currentCup.addTopping(top);
+
+        System.out.println("🍒 Added topping: " + name + " (" + (count + 1) + "/" + max + ")");
     }
-
-    int count = currentCup.getToppings().size();
-    int max = currentCup.getSize().getMaxToppings(); // ✅ ใช้ค่าจาก enum CupSize โดยตรง
-    if (count >= max) {
-        System.out.println("⚠ Max toppings reached!");
-        return;
-    }
-
-    // 🔸 ป้องกัน double click ภายใน 80 มิลลิวินาที
-    long now = System.currentTimeMillis();
-    if (now - lastScoopTime < 80) return;
-    lastScoopTime = now;
-
-    // 🔹 เตรียมตำแหน่งสุ่มเล็กน้อย (ให้ดูไม่เรียงกัน)
-    double offsetX = (Math.random() - 0.5) * 10;
-    double offsetY = 10 + (Math.random() * 8);
-
-    // 🔹 สร้างภาพ topping
-    ImageView topping = new ImageView(itemImages.get(toppingName));
-    topping.setFitHeight(20);
-    topping.setPreserveRatio(true);
-    topping.setLayoutX(SERVE_X + offsetX);
-    topping.setLayoutY(SERVE_Y - (25 * currentCup.getScoops().size()) + offsetY);
-    itemLayer.getChildren().add(topping);
-    topping.toFront();
-
-    // 🔹 เก็บข้อมูลในโมเดล
-    String name = toppingName.replace("Topping", "");
-    Topping top = new Topping(name, 5);
-    top.setImageView(topping);
-    currentCup.addTopping(top);
-
-    System.out.println("🍒 Added topping: " + name + " (" + (count + 1) + "/" + max + ")");
-}
-
 
     // =======================================================
     // 🔹 Sauce
@@ -219,17 +218,17 @@ public class ItemManager {
         }
 
         ImageView bottle = new ImageView(itemImages.get(sauceName));
-        bottle.setFitHeight(40);
+        bottle.setFitHeight(40 + 3);
         bottle.setPreserveRatio(true);
-        bottle.setLayoutX(SERVE_X - 25);
-        bottle.setLayoutY(SERVE_Y - 80);
+        bottle.setLayoutX(SERVE_X + 3 - 25);
+        bottle.setLayoutY(SERVE_Y + 3 - 70);
         itemLayer.getChildren().add(bottle);
 
         RotateTransition pour = new RotateTransition(Duration.seconds(1), bottle);
         pour.setFromAngle(0);
         pour.setToAngle(120);
         pour.setAutoReverse(true);
-        pour.setCycleCount(3);
+        pour.setCycleCount(2);
         pour.setOnFinished(e -> itemLayer.getChildren().remove(bottle));
         pour.play();
 
@@ -243,46 +242,41 @@ public class ItemManager {
     // =======================================================
     // 🔹 Serve / Clear
     // =======================================================
-    public Cup getCurrentCup() {
-        return currentCup;
+    public Cup getCurrentCup() { return currentCup; }
+
+    public void serveCurrentCup() {
+        if (isServing) {
+            System.out.println("⚠️ Already serving, wait...");
+            return;
+        }
+        if (currentCup == null) {
+            System.out.println("⚠ No cup to serve!");
+            return;
+        }
+
+        int scoops = currentCup.getScoops().size();
+        int max = currentCup.getSize().getMaxScoops();
+        if (scoops < max) {
+            System.out.println("⏳ Not enough scoops yet! (" + scoops + "/" + max + ")");
+            return;
+        }
+
+        isServing = true;
+
+        if (gameManager != null) {
+            gameManager.resolveServe(currentCup, () -> {
+                clearAllPreparedVisuals();
+                isServing = false;
+            });
+        } else {
+            System.out.println("⚠ GameManager not linked.");
+            isServing = false;
+        }
     }
-
-
-public void serveCurrentCup() {
-    if (isServing) {
-        System.out.println("⚠️ Already serving, wait...");
-        return;
-    }
-    if (currentCup == null) {
-        System.out.println("⚠ No cup to serve!");
-        return;
-    }
-
-    int scoops = currentCup.getScoops().size();
-    int max = currentCup.getSize().getMaxScoops();
-    if (scoops < max) {
-        System.out.println("⏳ Not enough scoops yet! (" + scoops + "/" + max + ")");
-        return;
-    }
-
-    isServing = true; // ✅ กันคลิกซ้ำระหว่าง animation หรือ double trigger
-
-    if (gameManager != null) {
-        gameManager.resolveServe(currentCup, () -> {
-            clearAllPreparedVisuals();
-            isServing = false; // ✅ ปลดล็อกหลังเสิร์ฟเสร็จ
-        });
-    } else {
-        System.out.println("⚠ GameManager not linked.");
-        isServing = false;
-    }
-}
-
 
     public void clearAllPreparedVisuals() {
-    itemLayer.getChildren().clear();  
-    currentCup = null;
-    System.out.println("🧹 Cleared all visuals from itemLayer.");
-}
-
+        itemLayer.getChildren().clear();
+        currentCup = null;
+        System.out.println("🧹 Cleared all visuals from itemLayer.");
+    }
 }

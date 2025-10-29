@@ -232,4 +232,41 @@ public void leaveScene(Runnable onExit) {
     personalityLabel = null;
     patienceRatio = 1.0;
 }
+    public void clearCustomer() {
+    if (currentCustomerView != null) {
+        customerLayer.getChildren().remove(currentCustomerView);
+        currentCustomerView = null;
+    }
+    currentCustomer = null;
+    stopPatience();
+    disposePatienceBar();
+    System.out.println("🧹 Cleared current customer.");
+}
+
+    // CustomerManager.java
+
+/** เรียกตอนร้านปิด: ให้ลูกค้าคนปัจจุบันเดินออก + เคลียร์ patience + เคลียร์ของที่ทำอยู่ */
+public void forceCloseAndClear(ItemManager itemManager, Runnable after) {
+    // ปิด bubble เผื่อยังขึ้นอยู่
+    if (uiManager != null) {
+        try { uiManager.closeActiveBubble(); } catch (Exception ignore) {}
+    }
+
+    stopPatience();
+    disposePatienceBar();
+
+    if (currentCustomerView == null) {
+        // ไม่มีลูกค้าอยู่แล้ว แค่เคลียร์ของแล้วจบ
+        if (itemManager != null) itemManager.clearAllPreparedVisuals();
+        if (after != null) after.run();
+        return;
+    }
+
+    // ให้ลูกค้าเดินออกปกติ แล้วค่อยเคลียร์ของตาม
+    leaveScene(() -> {
+        if (itemManager != null) itemManager.clearAllPreparedVisuals();
+        if (after != null) after.run();
+    });
+}
+
 }

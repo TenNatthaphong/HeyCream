@@ -9,11 +9,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import java.util.Random;
 import javafx.animation.FadeTransition;
 import javafx.animation.Interpolator;
 import javafx.util.Duration;
-
+import java.util.Random;
 
 public class GameSceneController {
 
@@ -37,109 +36,74 @@ public class GameSceneController {
     private MoneyManager moneyManager;
 
     private final Random random = new Random();
-    private boolean isServing = false;
     private boolean isSpawningCustomer = false;
 
     // =======================================================
     // 🔹 INITIALIZE
     // =======================================================
-@FXML
-public void initialize() {
-    BackgroundBase.setupBase(backgroundLayer);
-    FoodTruckLayer.setupTruck(truckLayer);
-    uiManager = new UIManager(uiLayer);
-    uiManager.setCoinLabelNode(coinLabel);
-    timeManager = new TimeManager(timeLabel);
-    timeManager.startAt(12, 0);
-    timeManager.runGameClockRealtime(1);
-    // 🔹 เมื่อถึงเวลา 18:00 ให้ปิดร้าน + ขึ้น popup สรุปผล
-    timeManager.setOnCloseShop(() -> {
-        System.out.println("🕕 ร้านปิดแล้ว — แสดงหน้าสรุปผล!");
+    @FXML
+    public void initialize() {
+        BackgroundBase.setupBase(backgroundLayer);
+        FoodTruckLayer.setupTruck(truckLayer);
 
-        int correct = orderManager.getCorrectServeCount();
-        int total = orderManager.getTotalServeCount();
-        int money = moneyManager.getTotal();
+        uiManager = new UIManager(uiLayer);
+        uiManager.setCoinLabelNode(coinLabel);
 
-        // สร้างเอฟเฟกต์ fade out ทั้งจอ
-        FadeTransition fade = new FadeTransition(Duration.seconds(1.2), rootPane);
-        fade.setFromValue(1.0);
-        fade.setToValue(0.6);
-        fade.setInterpolator(Interpolator.EASE_BOTH);
-        fade.setOnFinished(ev -> {
-            // แสดง popup สรุปผล
-            ResultPopup popup = new ResultPopup(correct, total, money);
-            rootPane.getChildren().add(popup);
-            popup.toFront();
+        moneyManager = new MoneyManager();
+        orderManager = new OrderManager();
+        customerManager = new CustomerManager(customerLayer, uiManager);
+        itemManager = new ItemManager(itemLayer);
+        interactionManager = new InteractionManager(itemManager, uiManager);
+
+        timeManager = new TimeManager(timeLabel);
+        timeManager.startAt(12, 0);
+        timeManager.runGameClockRealtime(1);
+        timeManager.setOnCloseShop(this::onShopClosed);
+
+        gameManager = new GameManager(timeManager, uiManager, customerManager, moneyManager, orderManager);
+        itemManager.setGameManager(gameManager);
+        customerManager.setPatienceHost(itemLayer);
+        customerManager.setItemManager(itemManager);
+        customerManager.setController(this);
+        interactionManager.attachToLayer(itemLayer);
+
+        itemLayer.prefWidthProperty().bind(rootPane.widthProperty());
+        itemLayer.prefHeightProperty().bind(rootPane.heightProperty());
+        itemLayer.setPickOnBounds(true);
+        itemLayer.setMouseTransparent(false);
+
+        spawnCustomerSequence();
+
+        itemLayer.setOnMouseClicked(e -> {
+            String item = itemManager.detectItemByPosition(e.getX(), e.getY());
+            if (item != null) handleItemClick(item);
         });
-        fade.play();
-    });
 
-    moneyManager = new MoneyManager();
-    orderManager = new OrderManager();
-    customerManager = new CustomerManager(customerLayer, uiManager);
-    gameManager = new GameManager(timeManager, uiManager, customerManager, moneyManager, orderManager);
-    itemManager = new ItemManager(itemLayer);
-    itemManager.setGameManager(gameManager);
-    interactionManager = new InteractionManager(itemManager, uiManager);
-    interactionManager.attachToLayer(itemLayer);
-    customerManager.setPatienceHost(itemLayer);
-    customerManager.setItemManager(itemManager);
-    customerManager.setController(this);
-    itemLayer.prefWidthProperty().bind(rootPane.widthProperty());
-    itemLayer.prefHeightProperty().bind(rootPane.heightProperty());
-    itemLayer.setPickOnBounds(true);
-    itemLayer.setMouseTransparent(false);
-    spawnCustomerSequence();
-    itemLayer.setOnMouseClicked(e -> {
-        System.out.println("🖱 CLICK at X=" + e.getX() + ", Y=" + e.getY());
-        String item = itemManager.detectItemByPosition(e.getX(), e.getY());
-        if (item != null) handleItemClick(item);
-    });
-    backgroundLayer.toBack();
-    customerLayer.toFront();
-    truckLayer.toFront();
-    itemLayer.toFront();
-    uiLayer.toFront();
+        backgroundLayer.toBack();
+        customerLayer.toFront();
+        truckLayer.toFront();
+        itemLayer.toFront();
+        uiLayer.toFront();
 
-    System.out.println("🎮 Game initialized successfully!");
-}
-
-
-
-
+        System.out.println("🎮 Game initialized successfully!");
+    }
 
     // =======================================================
     // 🔹 Handle Item Click
     // =======================================================
     private void handleItemClick(String itemName) {
         if (itemName == null) return;
-        
 
         if (itemName.startsWith("Cup") || itemName.equals("Cone")) {
-            if (itemManager.getCurrentCup() == null) {
-                itemManager.spawnCup(itemName);
-            } else {
-                System.out.println("⚠ Cup already placed!");
-            }
+            if (itemManager.getCurrentCup() == null) itemManager.spawnCup(itemName);
+            else System.out.println("⚠ Cup already placed!");
             return;
         }
 
-        if (itemName.startsWith("Scoop")) {
-            itemManager.addScoopToCup(itemName);
-            return;
-        }
+        if (itemName.startsWith("Scoop")) { itemManager.addScoopToCup(itemName); return; }
+        if (itemName.startsWith("Topping")) { itemManager.addToppingToCup(itemName); return; }
+        if (itemName.startsWith("Sauce")) { itemManager.addSauceToCup(itemName); return; }
 
-        if (itemName.startsWith("Topping")) {
-            itemManager.addToppingToCup(itemName);
-            return;
-        }
-
-        if (itemName.startsWith("Sauce")) {
-            itemManager.addSauceToCup(itemName);
-            return;
-        }
-
-        // ✅ serve logic (when click CupArea or ServeZone)
         if (itemName.equals("ServeZone") || itemName.equals("CupArea")) {
             itemManager.serveCurrentCup();
             return;
@@ -152,33 +116,151 @@ public void initialize() {
     // 🔹 Customer Management
     // =======================================================
     public void spawnCustomerSequence() {
-        
-    if (isSpawningCustomer) {
-        System.out.println("⚠️ Spawn blocked: already spawning a customer.");
-        return;
-    }
-    isSpawningCustomer = true;
+        if (isSpawningCustomer) return;
+        isSpawningCustomer = true;
 
-    String[] names = {"Cat", "Dog", "Pig", "Tiger", "Elephant"};
-    String name = names[random.nextInt(names.length)];
-    CustomerBehavior behavior = Randomizer.randomBehavior();
-    Order order = orderManager.generateOrder();
-    int arrivalMinute = timeManager.getCurrentMinute();
+        String[] names = {"Cat", "Dog", "Pig", "Tiger", "Elephant"};
+        String name = names[random.nextInt(names.length)];
+        CustomerBehavior behavior = Randomizer.randomBehavior();
+        Order order = orderManager.generateOrder();
+        int arrivalMinute = timeManager.getCurrentMinute();
 
-    Customer customer = new Customer(name, order, behavior, arrivalMinute);
-
-    customerManager.spawnCustomer(customer, () -> {
-        System.out.println("✅ " + name + " (" + behavior.getClass().getSimpleName() + ") arrived at " + arrivalMinute);
-        uiManager.showSpeechBubble(customer.getSpeech(), () -> {
-            isSpawningCustomer = false;
+        Customer customer = new Customer(name, order, behavior, arrivalMinute);
+        customerManager.spawnCustomer(customer, () -> {
+            uiManager.showSpeechBubble(customer.getSpeech(), () -> isSpawningCustomer = false);
         });
+    }
+
+    // =======================================================
+    // 🔹 When shop closes
+    // =======================================================
+    public void onShopClosed() {
+        System.out.println("🏁 The shop is now closed!");
+
+        // 🔹 Block new actions
+        itemLayer.setMouseTransparent(true);
+        isSpawningCustomer = true;
+
+        // 🔹 Force all visuals/patience clear before showing popup
+        customerManager.forceCloseAndClear(itemManager, () -> {
+            int totalMoney = moneyManager.getTotal();
+            int totalOrders = orderManager.getTotalOrderCount();
+            int correctOrders = orderManager.getCorrectServeCount();
+
+            // 🔹 Overlay fade-in
+            Pane dim = new Pane();
+            dim.setStyle("-fx-background-color: rgba(0,0,0,0.5);");
+            dim.setPrefSize(rootPane.getWidth(), rootPane.getHeight());
+            dim.prefWidthProperty().bind(rootPane.widthProperty());
+            dim.prefHeightProperty().bind(rootPane.heightProperty());
+            rootPane.getChildren().add(dim);
+            dim.toFront();
+
+            FadeTransition dimFade = new FadeTransition(Duration.seconds(1), dim);
+            dimFade.setFromValue(0);
+            dimFade.setToValue(1);
+            dimFade.setInterpolator(Interpolator.EASE_OUT);
+            dimFade.play();
+
+            // 🔹 Show summary popup (after overlay animation)
+            dimFade.setOnFinished(ev -> {
+                javafx.application.Platform.runLater(() -> {
+                    ResultPopup popup = new ResultPopup(
+                        correctOrders,
+                        totalOrders,
+                        totalMoney,
+                        this::restartGame,
+                        this::goToMainMenu
+                    );
+
+                    // ✅ จัด popup ให้อยู่กลางหน้าจอเสมอ
+                    popup.setLayoutX((rootPane.getWidth() - popup.getPrefWidth()) / 2);
+                    popup.setLayoutY((rootPane.getHeight() - popup.getPrefHeight()) / 2);
+
+                    rootPane.getChildren().add(popup);
+                    popup.toFront();
+
+                    System.out.println("✅ ResultPopup displayed!");
+                });
+            });
+        });
+    }
+
+
+    // =======================================================
+    // 🔹 Restart
+    // =======================================================
+// =======================================================
+// 🔹 Restart Day (ใช้งานได้จริง)
+// =======================================================
+private void restartGame() {
+    System.out.println("🔄 Restarting game...");
+
+    // 🔹 1️⃣ Fade out ก่อนรีเซ็ต (ให้ overlay มืดค่อย ๆ หายไป)
+    FadeTransition fadeOut = new FadeTransition(Duration.seconds(0.8), rootPane);
+    fadeOut.setFromValue(0.6);  // ตอนนี้จอมี overlay มืด 60%
+    fadeOut.setToValue(1.0);    // ค่อย ๆ สว่างกลับมาเต็มจอ
+    fadeOut.setInterpolator(Interpolator.EASE_OUT);
+
+    fadeOut.setOnFinished(ev -> {
+        // 🔹 2️⃣ ลบ popup + overlay สีดำทั้งหมดออก
+        rootPane.getChildren().removeIf(node ->
+            (node instanceof ResultPopup) ||
+            (node instanceof Pane &&
+             node.getStyle() != null &&
+             node.getStyle().toLowerCase().contains("rgba(0,0,0,0.5)"))
+        );
+
+        // 🔹 3️⃣ รีเซ็ตระบบทั้งหมด
+        moneyManager.addMoney(-moneyManager.getTotal());
+        orderManager.resetStats();
+        customerManager.clearCustomer();
+        itemManager.clearAllPreparedVisuals();
+
+        // 🔹 4️⃣ รีเซ็ตเวลาใหม่
+        timeManager.stop();
+        timeManager.startAt(12, 0);
+        timeManager.runGameClockRealtime(1);
+
+        // 🔹 5️⃣ Spawn ลูกค้าใหม่
+        isSpawningCustomer = false;
+        spawnCustomerSequence();
+
+        // 🔹 6️⃣ เปิดให้คลิกใหม่อีกครั้ง
+        itemLayer.setMouseTransparent(false);
+
+        System.out.println("✅ Game restarted successfully!");
     });
+
+    fadeOut.play();
 }
+
+
     // =======================================================
-    // 🔹 Serve Logic (manual)
+    // 🔹 Back to menu
     // =======================================================
-    
-    public boolean isSpawningCustomer() {
+// =======================================================
+// 🔹 Back to main menu (ใช้งานได้จริง)
+// =======================================================
+private void goToMainMenu() {
+    System.out.println("🏠 Going back to main menu...");
+    try {
+        javafx.stage.Stage stage = (javafx.stage.Stage) rootPane.getScene().getWindow();
+
+        // ✅ ปิด clock และเคลียร์ระบบก่อนออก
+        timeManager.stop();
+        customerManager.clearCustomer();
+        itemManager.clearAllPreparedVisuals();
+
+        // ✅ เปลี่ยน Scene ไปหน้าเมนู
+        SceneFactory.show(stage, "/com/heycream/gui/fxml/main_menu.fxml");
+        System.out.println("✅ Returned to main menu.");
+    } catch (Exception e) {
+        System.err.println("❌ Failed to return to main menu: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+public boolean isSpawningCustomer() {
         return isSpawningCustomer;
     }
 }

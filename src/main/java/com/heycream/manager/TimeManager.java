@@ -42,12 +42,10 @@ public class TimeManager {
             updateLabel();
 
             // Stop at 18:00 if desired
-            if (!gameTime.isBefore(LocalTime.of(12, 30))) {
+            if (!gameTime.isBefore(LocalTime.of(18,0))) {
                 stop();
                 System.out.println("🕕 ร้านปิดแล้ว!");
-                if (onCloseShop != null) {
-                    Platform.runLater(onCloseShop);
-                }
+                if (onCloseShop != null) onCloseShop.run();
             }
         }));
 
