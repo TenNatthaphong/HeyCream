@@ -72,9 +72,9 @@ public class ResultPopup extends Pane
     // =====================
     private int computeStars(int money)
     {
-        if (money >= 850) return 3;
-        if (money >= 600) return 2;
-        if (money >= 300) return 1;
+        if (money >= 250) return 3;
+        if (money >= 200) return 2;
+        if (money >= 100) return 1;
         return 0;
     }
 

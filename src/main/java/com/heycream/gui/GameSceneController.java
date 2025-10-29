@@ -60,7 +60,7 @@ public class GameSceneController
         gameManager = new GameManager(uiManager, customerManager, moneyManager, orderManager);
         
         timeManager.startAt(10, 0);
-        timeManager.runGameClockRealtime(1);
+        timeManager.runGameClockRealtime(0.5);
         timeManager.setOnCloseShop(this::onShopClosed);
         uiManager.setCoinLabelNode(coinLabel);
         itemManager.setGameManager(gameManager);
@@ -204,7 +204,7 @@ public class GameSceneController
             itemManager.clearAllPreparedVisuals();
             timeManager.stop();
             timeManager.startAt(10, 0);
-            timeManager.runGameClockRealtime(1);
+            timeManager.runGameClockRealtime(0.5);
             isSpawningCustomer = false;
             spawnCustomerSequence();
             itemLayer.setMouseTransparent(false);
