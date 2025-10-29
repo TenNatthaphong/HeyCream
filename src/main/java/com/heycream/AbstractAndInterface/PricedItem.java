@@ -1,5 +1,6 @@
 package com.heycream.AbstractAndInterface;
 
-public interface PricedItem {
+public interface PricedItem 
+{
     int getPrice();
 }

@@ -1,10 +1,7 @@
 package com.heycream.AbstractAndInterface;
 
-/**
- * Rude customers are impatient and complain often.
- */
-public class RudeCustomer implements CustomerBehavior {
-
+public class RudeCustomer implements CustomerBehavior 
+{
     @Override
     public double getTipBonus() { return 0.8; }
 
@@ -15,8 +12,8 @@ public class RudeCustomer implements CustomerBehavior {
     public int getPatienceSeconds() { return 20; }
 
      @Override
-public String getReactionPhrase(boolean correct) {
-    return correct ? "Finally, about time!" : "Ugh, this is terrible!";
-}
-
+    public String getReactionPhrase(boolean correct)
+    {
+        return correct ? "Finally, about time!" : "Ugh, this is terrible!";
+    }
 }

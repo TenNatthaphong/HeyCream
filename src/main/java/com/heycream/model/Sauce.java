@@ -3,25 +3,31 @@ package com.heycream.model;
 import com.heycream.AbstractAndInterface.*;
 import javafx.scene.image.ImageView;
 
-public class Sauce implements DessertItem {
+public class Sauce implements DessertItem 
+{
+    // =====================
+    // SECTION: Attributes
+    // ===================== 
     private final String name;
     private final int price;
     private ImageView imageView;
 
-
-    public Sauce(String name, int price) {
+    // =====================
+    // SECTION: Constructor
+    // ===================== 
+    public Sauce(String name, int price)
+    {
         this.name = name;
         this.price = price;
     }
 
-    public void setImageView(ImageView view) { this.imageView = view; }
+    // =====================
+    // SECTION: Methods
+    // ===================== 
     public ImageView getImageView() { return imageView; }
-    @Override
-    public String getName() { return name; }
+    @Override public String getName() { return name; }
+    @Override public int getPrice() { return price; }
+    
+    public void setImageView(ImageView view) { this.imageView = view; }
 
-    @Override
-    public int getPrice() { return price; }
-
-    @Override
-    public String toString() { return name; }
 }

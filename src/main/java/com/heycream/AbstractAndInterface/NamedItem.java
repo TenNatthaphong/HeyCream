@@ -1,5 +1,6 @@
 package com.heycream.AbstractAndInterface;
 
-public interface NamedItem {
+public interface NamedItem 
+{
     String getName();
 }

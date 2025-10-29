@@ -132,41 +132,45 @@
 /* HeyCream - Result Popup Theme (Pastel) */
 /* ===================================== */
 
-.popup-box {
-    -fx-background-color: rgba(255, 255, 255, 0.08);
-    -fx-background-radius: 24;
-    -fx-border-color: #ffaad4;
+.result-box {
+    -fx-background-color: linear-gradient(to bottom, #fff5f9, #ffe6ef); /* สีขาวอมชมพูอ่อน */
+    -fx-border-color: #ff99c8;  /* ชมพูเข้ม */
     -fx-border-width: 3;
+    -fx-background-radius: 24;
     -fx-border-radius: 24;
+    -fx-effect: dropshadow(gaussian, rgba(255, 150, 200, 0.3), 16, 0.3, 0, 3);
 }
 
-.popup-title {
+
+
+.result-title {
     -fx-text-fill: #ff8fb3;
     -fx-font-family: "Comic Sans MS";
-    -fx-font-size: 26px;
+    -fx-font-size: 40px;
     -fx-font-weight: bold;
 }
 
-.popup-stars {
-    -fx-font-size: 32px;
+.result-stars {
+    -fx-font-size: 40px;
     -fx-font-family: "Comic Sans MS";
     -fx-text-fill: #ffe066;
 }
 
-.popup-money {
+
+.result-money {
     -fx-text-fill: #ffffff;
     -fx-font-family: "Comic Sans MS";
-    -fx-font-size: 18px;
+    -fx-font-size: 22px;
 }
 
-.popup-orders {
+.result-orders {
     -fx-text-fill: #fefefe;
     -fx-font-family: "Comic Sans MS";
-    -fx-font-size: 16px;
+    -fx-font-size: 22px;
 }
 
 /* Buttons */
-.popup-btn-restart {
+.result-btn-restart {
     -fx-background-color: linear-gradient(#a8dfff, #6fc3ff);
     -fx-border-color: #4fa9ff;
     -fx-border-width: 2;
@@ -179,11 +183,11 @@
     -fx-padding: 8 20 8 20;
 }
 
-.popup-btn-restart:hover {
+.result-btn-restart:hover {
     -fx-background-color: linear-gradient(#b9e6ff, #8cd3ff);
 }
 
-.popup-btn-back {
+.result-btn-back {
     -fx-background-color: linear-gradient(#ffb4c9, #ff8fb3);
     -fx-border-color: #ff4f92;
     -fx-border-width: 2;
@@ -196,6 +200,6 @@
     -fx-padding: 8 20 8 20;
 }
 
-.popup-btn-back:hover {
+.result-btn-back:hover {
     -fx-background-color: linear-gradient(#ffc4d6, #ffb4c9);
 }
