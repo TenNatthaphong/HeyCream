@@ -3,10 +3,6 @@ package com.heycream.manager;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
-/**
- * InteractionManager:
- * จัดการการคลิกของผู้เล่นบน item layer แล้วสั่งให้ ItemManager สร้างของจริง
- */
 public class InteractionManager {
 
     private final ItemManager itemManager;

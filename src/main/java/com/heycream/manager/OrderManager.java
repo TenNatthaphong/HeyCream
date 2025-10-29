@@ -8,6 +8,8 @@ import com.heycream.utils.Randomizer;
 
 public class OrderManager {
 
+    private int totalServes = 0;
+    private int correctServes = 0;
     public OrderManager() {}
     /** Simple equality check (can be customized later). */
     public boolean isOrderCorrect(Cup playerCup, Customer customer) {
@@ -17,6 +19,13 @@ public class OrderManager {
         return order.checkMatch(playerCup);
     }
 
+    public void recordServe(boolean correct) {
+    totalServes++;
+    if (correct) correctServes++;
+    }
+
+    public int getTotalServeCount() { return totalServes; }
+    public int getCorrectServeCount() { return correctServes; }
    public Order generateOrder() {
         return Randomizer.randomOrder();
     }

@@ -3,7 +3,6 @@ package com.heycream.gui;
 import com.heycream.AbstractAndInterface.CustomerBehavior;
 import com.heycream.actor.*;
 import com.heycream.manager.*;
-import com.heycream.model.Cup;
 import com.heycream.model.Order;
 import com.heycream.utils.Randomizer;
 import javafx.fxml.FXML;
@@ -11,7 +10,10 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import java.util.Random;
-import javafx.application.Platform;
+import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
+import javafx.util.Duration;
+
 
 public class GameSceneController {
 
@@ -49,17 +51,40 @@ public void initialize() {
     uiManager.setCoinLabelNode(coinLabel);
     timeManager = new TimeManager(timeLabel);
     timeManager.startAt(12, 0);
-    timeManager.runGameClockRealtime(0.5);
+    timeManager.runGameClockRealtime(1);
+    // 🔹 เมื่อถึงเวลา 18:00 ให้ปิดร้าน + ขึ้น popup สรุปผล
+    timeManager.setOnCloseShop(() -> {
+        System.out.println("🕕 ร้านปิดแล้ว — แสดงหน้าสรุปผล!");
+
+        int correct = orderManager.getCorrectServeCount();
+        int total = orderManager.getTotalServeCount();
+        int money = moneyManager.getTotal();
+
+        // สร้างเอฟเฟกต์ fade out ทั้งจอ
+        FadeTransition fade = new FadeTransition(Duration.seconds(1.2), rootPane);
+        fade.setFromValue(1.0);
+        fade.setToValue(0.6);
+        fade.setInterpolator(Interpolator.EASE_BOTH);
+        fade.setOnFinished(ev -> {
+            // แสดง popup สรุปผล
+            ResultPopup popup = new ResultPopup(correct, total, money);
+            rootPane.getChildren().add(popup);
+            popup.toFront();
+        });
+        fade.play();
+    });
+
     moneyManager = new MoneyManager();
     orderManager = new OrderManager();
     customerManager = new CustomerManager(customerLayer, uiManager);
-    gameManager = new GameManager(timeManager, uiManager, customerManager, moneyManager, orderManager,itemManager);
-    gameManager.setController(this);
+    gameManager = new GameManager(timeManager, uiManager, customerManager, moneyManager, orderManager);
     itemManager = new ItemManager(itemLayer);
     itemManager.setGameManager(gameManager);
     interactionManager = new InteractionManager(itemManager, uiManager);
     interactionManager.attachToLayer(itemLayer);
     customerManager.setPatienceHost(itemLayer);
+    customerManager.setItemManager(itemManager);
+    customerManager.setController(this);
     itemLayer.prefWidthProperty().bind(rootPane.widthProperty());
     itemLayer.prefHeightProperty().bind(rootPane.heightProperty());
     itemLayer.setPickOnBounds(true);
@@ -88,6 +113,7 @@ public void initialize() {
     // =======================================================
     private void handleItemClick(String itemName) {
         if (itemName == null) return;
+        
 
         if (itemName.startsWith("Cup") || itemName.equals("Cone")) {
             if (itemManager.getCurrentCup() == null) {

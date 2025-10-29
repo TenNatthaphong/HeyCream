@@ -100,3 +100,31 @@
         linear-gradient(#ffb4c9, #ff8fb3),
         #ff8fb3;
 }
+/* ==================== */
+/* Personality Labels with Stroke */
+/* ==================== */
+.personality-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Comic Sans MS";
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.9), 2, 0.5, 0, 0); /* ขอบดำบางๆ ทุกอัน */
+}
+
+/* Mood-based variants */
+.personality-calm {
+    -fx-text-fill: #34c759; /* เขียวสดใส */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 2, 0.5, 0, 0);
+}
+
+.personality-rude {
+    -fx-text-fill: #e03e3e; /* แดงสด */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 2, 0.5, 0, 0);
+}
+
+.personality-vip {
+    -fx-text-fill: #ffb400;
+    -fx-effect:
+        dropshadow(gaussian, rgba(0,0,0,0.9), 2, 0.5, 0, 0),
+        dropshadow(gaussian, rgba(255,215,0,0.6), 8, 0.8, 0, 0);
+}
+

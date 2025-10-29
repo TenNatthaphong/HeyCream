@@ -1,7 +1,9 @@
 package com.heycream.manager;
 
 import com.heycream.actor.Customer;
+import com.heycream.gui.GameSceneController;
 import javafx.animation.*;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
@@ -14,11 +16,13 @@ public class CustomerManager {
     private final UIManager uiManager;
     private ImageView currentCustomerView;
     private Customer currentCustomer;
+    private ItemManager itemManager;
+    private GameSceneController controller;
 
     // ===== Patience Bar =====
     private static final double PAT_W = 20;
     private static final double PAT_H = 50;
-    private static final double PAT_X = 520; // วางด้านขวาของตัวละคร
+    private static final double PAT_X = 530; // วางด้านขวาของตัวละคร
     private static final double PAT_Y = 280;
 
     private Pane patienceHost;         // 👉 host ของแถบ (จะชี้ไปที่ itemLayer)
@@ -26,9 +30,8 @@ public class CustomerManager {
     private Rectangle patienceFill;
     private Timeline patienceTicker;
     private double patienceRatio = 1.0;
+    private Label personalityLabel = new Label();
 
-    // callback เมื่อ “ลูกค้าออกจากฉากแล้ว” (ใช้ spawn คนใหม่)
-    private Runnable onCustomerLeft;
 
     public CustomerManager(Pane customerLayer, UIManager uiManager) {
         this.customerLayer = customerLayer;
@@ -40,10 +43,13 @@ public class CustomerManager {
 
     public void setPatienceHost(Pane host) { this.patienceHost = (host != null ? host : customerLayer); }
 
-    public void setOnCustomerLeft(Runnable cb) { this.onCustomerLeft = cb; }
 
+    public void setItemManager(ItemManager item){ itemManager = item; }
     public double getPatienceRatio() { return patienceRatio; }
 
+    public void setController(GameSceneController controller) {
+        this.controller = controller;
+    }
     // ===== Spawn / Leave =====
 
    public void spawnCustomer(Customer customer, Runnable onFinish) {
@@ -95,15 +101,9 @@ public void leaveScene(Runnable onExit) {
         if (onExit != null) onExit.run();
         return;
     }
-
-    // 🧭 ก่อนลูกค้าเริ่มเดินออก ให้หยุดและ fade-out patience bar
     stopPatience();
     disposePatienceBar();
-
-    // 🧹 เคลียร์ของทั้งหมดจาก itemLayer (ผ่าน itemManager)
-    
-
-    // 🚶‍♂️ ลูกค้าเดินออกจากฉาก
+    itemManager.clearAllPreparedVisuals();
     TranslateTransition exit = new TranslateTransition(Duration.seconds(1.0), currentCustomerView);
     exit.setToX(900 - currentCustomerView.getLayoutX());
     exit.setInterpolator(Interpolator.EASE_IN);
@@ -113,8 +113,10 @@ public void leaveScene(Runnable onExit) {
         currentCustomer = null;
 
         if (onExit != null) onExit.run();
+        if (controller != null && !controller.isSpawningCustomer()) {
+            controller.spawnCustomerSequence();
+        }
     });
-
     exit.play();
 }
 
@@ -125,7 +127,7 @@ public void leaveScene(Runnable onExit) {
     private void createPatienceBar() {
     disposePatienceBar(); // กันค้างจากลูกค้าคนก่อน
 
-    // พื้นหลัง (สีซีด + ขอบเข้ม + ขอบมน)
+    // ✅ สร้างแถบพื้นหลัง
     patienceBg = new Rectangle(PAT_W, PAT_H);
     patienceBg.setFill(Color.web("#ffd6d6"));
     patienceBg.setStroke(Color.web("#7a2121"));
@@ -135,7 +137,7 @@ public void leaveScene(Runnable onExit) {
     patienceBg.setLayoutX(PAT_X);
     patienceBg.setLayoutY(PAT_Y);
 
-    // แถบสีเขียว (ขอบมนเหมือนกัน)
+    // ✅ แถบสี
     patienceFill = new Rectangle(PAT_W, PAT_H);
     patienceFill.setFill(Color.web("#34c759"));
     patienceFill.setArcWidth(10);
@@ -143,14 +145,36 @@ public void leaveScene(Runnable onExit) {
     patienceFill.setLayoutX(PAT_X);
     patienceFill.setLayoutY(PAT_Y);
 
-    patienceRatio = 1.0;
+    // ✅ ป้าย personality
+    if (personalityLabel == null) {
+        personalityLabel = new Label();
+    }
+    personalityLabel.setLayoutX(PAT_X - 5);
+    personalityLabel.setLayoutY(PAT_Y - 25);
+    personalityLabel.getStyleClass().clear();
+    personalityLabel.getStyleClass().add("personality-label");
+
+    if (currentCustomer != null && currentCustomer.getBehavior() != null) {
+        var b = currentCustomer.getBehavior();
+        if (b.isVIP()) {
+            personalityLabel.setText("VIP");
+            personalityLabel.getStyleClass().add("personality-vip");
+        } else if (b.isRude()) {
+            personalityLabel.setText("RUDE");
+            personalityLabel.getStyleClass().add("personality-rude");
+        } else {
+            personalityLabel.setText("CALM");
+            personalityLabel.getStyleClass().add("personality-calm");
+        }
+    } else {
+        personalityLabel.setText("");
+    }
 
     Pane host = (patienceHost != null ? patienceHost : customerLayer);
-    host.getChildren().addAll(patienceBg, patienceFill);
-
-    // ให้อยู่หน้าสุดในเลเยอร์นั้น
+    host.getChildren().addAll(patienceBg, patienceFill, personalityLabel);
     patienceBg.toFront();
     patienceFill.toFront();
+    personalityLabel.toFront();
 }
 
 
@@ -193,16 +217,19 @@ public void leaveScene(Runnable onExit) {
     }
 
     private void disposePatienceBar() {
-        stopPatience();
-        if (patienceHost != null) {
-            if (patienceFill != null) patienceHost.getChildren().remove(patienceFill);
-            if (patienceBg   != null) patienceHost.getChildren().remove(patienceBg);
-        } else {
-            if (patienceFill != null) customerLayer.getChildren().remove(patienceFill);
-            if (patienceBg   != null) customerLayer.getChildren().remove(patienceBg);
-        }
-        patienceFill = null;
-        patienceBg = null;
-        patienceRatio = 1.0;
+    stopPatience();
+    if (patienceHost != null) {
+        if (patienceFill != null) patienceHost.getChildren().remove(patienceFill);
+        if (patienceBg != null) patienceHost.getChildren().remove(patienceBg);
+        if (personalityLabel != null) patienceHost.getChildren().remove(personalityLabel);
+    } else {
+        if (patienceFill != null) customerLayer.getChildren().remove(patienceFill);
+        if (patienceBg != null) customerLayer.getChildren().remove(patienceBg);
+        if (personalityLabel != null) customerLayer.getChildren().remove(personalityLabel);
     }
+    patienceFill = null;
+    patienceBg = null;
+    personalityLabel = null;
+    patienceRatio = 1.0;
+}
 }

@@ -14,6 +14,7 @@ public class TimeManager {
     private Label timeLabel;
     private LocalTime gameTime;
     private Timeline timeline;
+    private Runnable onCloseShop;
 
     public TimeManager(Label timeLabel) {
         this.timeLabel = timeLabel;
@@ -25,6 +26,9 @@ public class TimeManager {
         updateLabel();
     }
 
+    public void setOnCloseShop(Runnable onCloseShop) {
+    this.onCloseShop = onCloseShop;
+}
     /**
      * Start ticking clock in real-time.
      * @param secondsPerMinute how many *real seconds* represent one in-game minute.
@@ -38,8 +42,12 @@ public class TimeManager {
             updateLabel();
 
             // Stop at 18:00 if desired
-            if (!gameTime.isBefore(LocalTime.of(18, 0))) {
+            if (!gameTime.isBefore(LocalTime.of(12, 30))) {
                 stop();
+                System.out.println("🕕 ร้านปิดแล้ว!");
+                if (onCloseShop != null) {
+                    Platform.runLater(onCloseShop);
+                }
             }
         }));
 

@@ -81,14 +81,6 @@ public class Order {
             sb.append(", and drizzled with ").append(requestedSauce.getName()).append(" sauce");
         }
         sb.append("!");
-
-        if (behavior != null) {
-            String tone = behavior.isVIP()
-                    ? "speaking warmly (VIP)"
-                    : (behavior.isRude() ? "speaking curtly" : "speaking softly and patiently");
-            sb.append(" (").append(tone).append(")");
-        }
-
         return sb.toString();
     }
 

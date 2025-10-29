@@ -14,7 +14,7 @@ public class ItemManager {
     private final Map<String, Image> itemImages = new HashMap<>();
     private Cup currentCup;
     private GameManager gameManager;
-
+   private boolean isServing = false;
     // 📍 ตำแหน่งเสิร์ฟ
     private static final double SERVE_X = 740;
     private static final double SERVE_Y = 510;
@@ -169,28 +169,45 @@ public class ItemManager {
     // 🔹 Topping
     // =======================================================
     public void addToppingToCup(String toppingName) {
-        if (currentCup == null || currentCup.getScoops().isEmpty()) {
-            System.out.println("⚠ Need cup + scoop first!");
-            return;
-        }
-
-        double offsetX = (Math.random() - 0.5) * 10;
-        double offsetY = 10 + (Math.random() * 8);
-
-        ImageView topping = new ImageView(itemImages.get(toppingName));
-        topping.setFitHeight(20);
-        topping.setPreserveRatio(true);
-        topping.setLayoutX(SERVE_X + offsetX);
-        topping.setLayoutY(SERVE_Y - (25 * currentCup.getScoops().size()) + offsetY);
-        itemLayer.getChildren().add(topping);
-        topping.toFront();
-
-        Topping top = new Topping(toppingName.replace("Topping", ""), 5);
-        top.setImageView(topping);
-        currentCup.addTopping(top);
-
-        System.out.println("🍒 Added topping: " + toppingName);
+    if (currentCup == null || currentCup.getScoops().isEmpty()) {
+        System.out.println("⚠ Need cup + scoop first!");
+        return;
     }
+
+    int count = currentCup.getToppings().size();
+    int max = currentCup.getSize().getMaxToppings(); // ✅ ใช้ค่าจาก enum CupSize โดยตรง
+    if (count >= max) {
+        System.out.println("⚠ Max toppings reached!");
+        return;
+    }
+
+    // 🔸 ป้องกัน double click ภายใน 80 มิลลิวินาที
+    long now = System.currentTimeMillis();
+    if (now - lastScoopTime < 80) return;
+    lastScoopTime = now;
+
+    // 🔹 เตรียมตำแหน่งสุ่มเล็กน้อย (ให้ดูไม่เรียงกัน)
+    double offsetX = (Math.random() - 0.5) * 10;
+    double offsetY = 10 + (Math.random() * 8);
+
+    // 🔹 สร้างภาพ topping
+    ImageView topping = new ImageView(itemImages.get(toppingName));
+    topping.setFitHeight(20);
+    topping.setPreserveRatio(true);
+    topping.setLayoutX(SERVE_X + offsetX);
+    topping.setLayoutY(SERVE_Y - (25 * currentCup.getScoops().size()) + offsetY);
+    itemLayer.getChildren().add(topping);
+    topping.toFront();
+
+    // 🔹 เก็บข้อมูลในโมเดล
+    String name = toppingName.replace("Topping", "");
+    Topping top = new Topping(name, 5);
+    top.setImageView(topping);
+    currentCup.addTopping(top);
+
+    System.out.println("🍒 Added topping: " + name + " (" + (count + 1) + "/" + max + ")");
+}
+
 
     // =======================================================
     // 🔹 Sauce
@@ -230,24 +247,37 @@ public class ItemManager {
         return currentCup;
     }
 
-    public void serveCurrentCup() {
-        if (currentCup == null) {
-            System.out.println("⚠ No cup to serve!");
-            return;
-        }
-        int scoops = currentCup.getScoops().size();
-        int max = currentCup.getSize().getMaxScoops();
-        if (scoops < max) {
-            System.out.println("⏳ Not enough scoops yet! (" + scoops + "/" + max + ")");
-            return;
-        }
 
-        if (gameManager != null) {
-            gameManager.resolveServe(currentCup, this::clearAllPreparedVisuals);
-        } else {
-            System.out.println("⚠ GameManager not linked.");
-        }
+public void serveCurrentCup() {
+    if (isServing) {
+        System.out.println("⚠️ Already serving, wait...");
+        return;
     }
+    if (currentCup == null) {
+        System.out.println("⚠ No cup to serve!");
+        return;
+    }
+
+    int scoops = currentCup.getScoops().size();
+    int max = currentCup.getSize().getMaxScoops();
+    if (scoops < max) {
+        System.out.println("⏳ Not enough scoops yet! (" + scoops + "/" + max + ")");
+        return;
+    }
+
+    isServing = true; // ✅ กันคลิกซ้ำระหว่าง animation หรือ double trigger
+
+    if (gameManager != null) {
+        gameManager.resolveServe(currentCup, () -> {
+            clearAllPreparedVisuals();
+            isServing = false; // ✅ ปลดล็อกหลังเสิร์ฟเสร็จ
+        });
+    } else {
+        System.out.println("⚠ GameManager not linked.");
+        isServing = false;
+    }
+}
+
 
     public void clearAllPreparedVisuals() {
     itemLayer.getChildren().clear();  
