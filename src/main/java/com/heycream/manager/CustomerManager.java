@@ -35,6 +35,8 @@ public class CustomerManager
     private double patienceRatio = 1.0;
     private Label personalityLabel = new Label();
 
+    private Runnable onCustomerExit;
+
     // =====================
     // SECTION: Constructor
     // =====================
@@ -121,10 +123,7 @@ public class CustomerManager
             currentCustomer = null;
 
             if (onExit != null) onExit.run();
-            if (controller != null && !controller.isSpawningCustomer())
-            {
-                controller.spawnCustomerSequence();
-            }
+            if (onCustomerExit != null) onCustomerExit.run(); 
         });
         exit.play();
     }
@@ -265,8 +264,10 @@ public class CustomerManager
     // Getter , Setter
     public ImageView getCurrentCustomerView() { return currentCustomerView; }
     public Customer getCurrentCustomer() { return currentCustomer; }
+    public double getPatienceRatio() { return patienceRatio; }
+    
     public void setPatienceHost(Pane host) { this.patienceHost = (host != null ? host : customerLayer); }
     public void setItemManager(ItemManager item) { itemManager = item; }
-    public double getPatienceRatio() { return patienceRatio; }
     public void setController(GameSceneController controller) { this.controller = controller; }
+    public void setOnCustomerExit(Runnable callback) { this.onCustomerExit = callback; }
 }

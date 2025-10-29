@@ -31,7 +31,7 @@ public class UIManager
     public void flashHint(String hint)
     {
         Text text = new Text(hint);
-        text.setStyle("-fx-font-size: 18px; -fx-fill: yellow -fx-font-weight: bold;;");
+        text.setStyle("-fx-font-size: 18px; -fx-fill: #002f5e; -fx-font-weight: bold;");
         text.setLayoutX(375);
         text.setLayoutY(150);
         uiPane.getChildren().add(text);

@@ -76,6 +76,11 @@ public class GameSceneController
 
         spawnCustomerSequence();
 
+        customerManager.setOnCustomerExit(() -> 
+        {
+            isSpawningCustomer = false;
+            spawnCustomerSequence();
+        });
         itemLayer.setOnMouseClicked(e -> 
         {
             String item = itemManager.detectItemByPosition(e.getX(), e.getY());
@@ -230,7 +235,6 @@ public class GameSceneController
         catch (Exception e)
         {
             System.err.println("Failed to return to main menu: " + e.getMessage());
-            e.printStackTrace();
         }
     }
     
