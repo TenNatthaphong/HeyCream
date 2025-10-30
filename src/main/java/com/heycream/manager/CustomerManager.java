@@ -71,10 +71,10 @@ public class CustomerManager
         view.setLayoutX(startX);
         view.setLayoutY(280);
 
-        customerLayer.getChildren().add(view);
+        
         currentCustomerView = view;
         currentCustomer.setImageView(view);
-
+        customerLayer.getChildren().add(view);
         TranslateTransition enter = new TranslateTransition(Duration.seconds(2), view);
         enter.setFromX(0);
         enter.setToX(endX - startX);
@@ -255,11 +255,14 @@ public class CustomerManager
             if (after != null) after.run();
             return;
         }
-        leaveScene(() -> 
+        else
         {
-            if (itemManager != null) itemManager.clearAllPreparedVisuals();
-            if (after != null) after.run();
-        });
+                leaveScene(() -> 
+            {
+                if (itemManager != null) itemManager.clearAllPreparedVisuals();
+                if (after != null) after.run();
+            });
+        }
     }
     
     // Getter , Setter

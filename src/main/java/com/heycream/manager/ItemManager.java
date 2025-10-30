@@ -251,7 +251,6 @@ public class ItemManager
         {
             gameManager.resolveServe(currentCup, () -> 
             {
-                clearAllPreparedVisuals();
                 isServing = false;
             });
         } 

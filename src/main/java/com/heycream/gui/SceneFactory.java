@@ -15,7 +15,7 @@ public final class SceneFactory
 
     // =====================
     // SECTION: Methods
-    // =====================
+    // 
     public static void show(Stage stage, String fxmlPath)
     {
         try

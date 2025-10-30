@@ -40,7 +40,7 @@ public class TimeManager
         {
             gameTime = gameTime.plusMinutes(1);
             updateLabel();
-            if (!gameTime.isBefore(LocalTime.of(18,0)))
+            if (!gameTime.isBefore(LocalTime.of(16,0)))
             {
                 stop();
                 System.out.println("🕕 Time's up!");

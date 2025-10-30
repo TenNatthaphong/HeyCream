@@ -78,7 +78,7 @@ public class GameSceneController
         customerManager.setOnCustomerExit(() -> 
         {
             isSpawningCustomer = false;
-            spawnCustomerSequence();
+            spawnCustomerSequence(); 
         });
         itemLayer.setOnMouseClicked(e -> 
         {
@@ -109,7 +109,7 @@ public class GameSceneController
         if (itemName.startsWith("Scoop")) { itemManager.addScoopToCup(itemName); return; }
         if (itemName.startsWith("Topping")) { itemManager.addToppingToCup(itemName); return; }
         if (itemName.startsWith("Sauce")) { itemManager.addSauceToCup(itemName); return; }
-        if (itemName.equals("ServeZone") || itemName.equals("CupArea")) { itemManager.serveCurrentCup(); return; }
+        if (itemName.equals("ServeZone")) { itemManager.serveCurrentCup(); return; }
         System.out.println("Unhandled item: " + itemName);
     }
 
@@ -118,8 +118,7 @@ public class GameSceneController
         if (isSpawningCustomer) return;
         isSpawningCustomer = true;
 
-        String[] names = {"Cat", "Dog", "Pig", "Tiger", "Elephant"};
-        String name = names[random.nextInt(names.length)];
+        String name = Randomizer.randomName();
         CustomerBehavior behavior = Randomizer.randomBehavior();
         Order order = orderManager.generateOrder();
         int arrivalMinute = timeManager.getCurrentMinute();
